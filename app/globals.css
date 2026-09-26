@@ -538,4 +538,106 @@ th {
 
 .cloudshadow-app main > section {
   margin-left: 0 !important;
+}/* =========================================================
+   CLOUDSHADOW — OVERVIEW PREMIUM POLISH
+   ========================================================= */
+
+/* Overview page entrance */
+main {
+  animation: cloudPageEnter 0.45s ease-out both;
+}
+
+@keyframes cloudPageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Premium card depth */
+.cloud-card,
+.group {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Smooth text rendering */
+h1,
+h2,
+h3 {
+  text-rendering: optimizeLegibility;
+}
+
+/* Root-cause visual emphasis */
+[class*="border-red-200"][class*="rounded-[28px]"] {
+  box-shadow:
+    0 10px 40px rgba(15, 23, 42, 0.06),
+    0 0 0 1px rgba(239, 68, 68, 0.025);
+}
+
+/* KPI cards */
+[class*="text-3xl"][class*="font-bold"] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Intelligence flow cards */
+[class*="bg-slate-50/80"] {
+  backdrop-filter: blur(8px);
+}
+
+/* Better hover depth for dashboard cards */
+button.group:hover {
+  box-shadow:
+    0 14px 35px rgba(15, 23, 42, 0.08);
+}
+
+/* Status pulse */
+@keyframes cloudStatusPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.18);
+  }
+
+  50% {
+    box-shadow: 0 0 0 5px rgba(16, 185, 129, 0);
+  }
+}
+
+/* Subtle teal highlight */
+[class*="bg-teal-50"] {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+/* Better mobile readability */
+@media (max-width: 640px) {
+  h1 {
+    letter-spacing: -0.025em;
+  }
+
+  main section {
+    min-width: 0;
+  }
+
+  button {
+    max-width: 100%;
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
