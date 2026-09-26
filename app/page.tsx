@@ -1,11 +1,12 @@
+
 "use client";
 
 import Sidebar from "./Sidebar";
-import { cloudAnalysis, formatLakhs } from "./cloudData";
+import { cloudAnalysis, formatINR, formatLakhs } from "./cloudData";
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-[#f5f8fc] text-slate-900">
+    <main className="min-h-screen bg-[#07111f] text-slate-100">
       <Sidebar activeSection="overview" />
 
       <section className="lg:ml-[250px]">
@@ -16,60 +17,69 @@ export default function HomePage() {
 }
 
 function Overview() {
-  const { overview, rootCause, costImpact } = cloudAnalysis;
+  const { overview, rootCause, costImpact, services, recommendations } =
+    cloudAnalysis;
 
-  const serviceA = cloudAnalysis.services.find(
-    (service) => service.id === "service-a"
-  );
+  const serviceA = services.find((service) => service.id === "service-a");
+  const serviceB = services.find((service) => service.id === "service-b");
 
-  const serviceB = cloudAnalysis.services.find(
-    (service) => service.id === "service-b"
+  const totalSavings = recommendations.reduce(
+    (sum, recommendation) => sum + recommendation.saving,
+    0
   );
 
   return (
-    <div className="min-h-screen bg-[#f5f8fc]">
-      {/* =========================================================
+    <div className="min-h-screen overflow-x-hidden bg-[#07111f]">
+      {/* =====================================================
           HEADER
-      ========================================================= */}
-      <header className="relative overflow-hidden border-b border-slate-200 bg-white">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_20%,rgba(20,184,166,0.08),transparent_32%),radial-gradient(circle_at_60%_100%,rgba(59,130,246,0.05),transparent_30%)]" />
-
-        <div className="relative px-6 py-8 sm:px-8 lg:px-10 lg:py-10">
-          <div className="flex flex-col justify-between gap-7 xl:flex-row xl:items-end">
+      ===================================================== */}
+      <header className="border-b border-white/10 bg-[#081525]">
+        <div className="px-5 py-5 sm:px-7 lg:px-9">
+          <div className="flex flex-col justify-between gap-5 xl:flex-row xl:items-center">
             <div>
-              <div className="mb-4 flex items-center gap-3">
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-400 opacity-60" />
-                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-teal-500" />
+              <div className="mb-2 flex items-center gap-2">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-60" />
+                  <span className="relative h-2 w-2 rounded-full bg-cyan-400" />
                 </span>
 
-                <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-teal-600">
-                  Cloud intelligence
+                <span className="text-[9px] font-bold uppercase tracking-[0.25em] text-cyan-400">
+                  Cloud Intelligence
                 </span>
               </div>
 
-              <h1 className="text-3xl font-bold tracking-[-0.03em] text-slate-950 sm:text-4xl lg:text-[42px]">
-                CloudShadow Overview
+              <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                CloudShadow
               </h1>
 
-              <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-500">
-                Understand what changed in your cloud bill, why it changed,
-                and which application behaviour caused it.
+              <p className="mt-1.5 text-xs text-slate-400">
+                Cloud intelligence for explainable spending, root-cause
+                analysis and optimization.
               </p>
             </div>
 
-            <div className="flex w-fit items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/80 px-4 py-3 shadow-sm">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white shadow-sm">
-                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]" />
-              </span>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-400/5 px-4 py-2.5">
+                <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)]" />
 
-              <div>
-                <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-emerald-600">
-                  Analysis status
+                <div>
+                  <p className="text-[8px] font-bold uppercase tracking-widest text-emerald-400">
+                    Analysis Engine
+                  </p>
+
+                  <p className="mt-0.5 text-[10px] font-semibold text-emerald-300">
+                    ACTIVE
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5">
+                <p className="text-[8px] font-bold uppercase tracking-widest text-slate-500">
+                  Analysis
                 </p>
 
-                <p className="mt-0.5 text-xs font-bold text-emerald-700">
-                  Analysis complete
+                <p className="mt-0.5 text-[10px] font-semibold text-slate-300">
+                  Sep 26, 2026
                 </p>
               </div>
             </div>
@@ -77,379 +87,506 @@ function Overview() {
         </div>
       </header>
 
-      <div className="space-y-8 p-6 sm:p-8 lg:p-10">
-        {/* =========================================================
-            FINANCIAL OVERVIEW
-        ========================================================= */}
+      {/* =====================================================
+          MAIN CONTENT
+      ===================================================== */}
+      <div className="space-y-5 p-5 sm:p-7 lg:p-9">
+        {/* ===================================================
+            KPI STRIP
+        =================================================== */}
         <section>
-          <div className="mb-5 flex items-end justify-between gap-4">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-teal-600">
-                Financial overview
-              </p>
+          <div className="mb-3">
+            <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">
+              CloudShadow Overview
+            </p>
 
-              <h2 className="mt-1.5 text-base font-bold text-slate-800">
-                Current cloud environment
-              </h2>
-            </div>
-
-            <span className="hidden rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider text-slate-400 sm:block">
-              Live analysis
-            </span>
+            <h2 className="mt-1 text-sm font-bold text-white">
+              Current cloud environment
+            </h2>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {/* Current cost */}
-            <div className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.04)] transition-all duration-300 hover:-translate-y-1 hover:border-teal-200 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
-              <div className="absolute right-0 top-0 h-20 w-20 rounded-bl-full bg-teal-50/70" />
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            <MetricCard
+              label="Current Cloud Cost"
+              value={formatLakhs(overview.currentCost)}
+              change={`+${overview.overallChange}%`}
+              description="vs previous period"
+              tone="cyan"
+            />
 
-              <div className="relative">
-                <div className="flex items-center justify-between">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
-                    Current monthly cost
+            <MetricCard
+              label="Cost Increase"
+              value={`+${overview.overallChange}%`}
+              change="38.4%"
+              description="overall increase"
+              tone="red"
+            />
+
+            <MetricCard
+              label="Network Spending"
+              value={formatLakhs(overview.networkCost)}
+              change={`+${overview.networkChange}%`}
+              description="strongest cost signal"
+              tone="amber"
+            />
+
+            <MetricCard
+              label="Active Investigations"
+              value="04"
+              change="02"
+              description="high-impact signals"
+              tone="blue"
+            />
+
+            <MetricCard
+              label="Potential Savings"
+              value={formatINR(totalSavings)}
+              change="3"
+              description="optimization actions"
+              tone="green"
+            />
+          </div>
+        </section>
+
+        {/* ===================================================
+            COST + AI INTELLIGENCE
+        =================================================== */}
+        <section className="grid gap-5 xl:grid-cols-[1.7fr_1fr]">
+          {/* COST INTELLIGENCE */}
+          <div className="rounded-2xl border border-white/10 bg-[#0b192b] shadow-2xl shadow-black/20">
+            <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+              <div>
+                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-cyan-400">
+                  CloudShadow Intelligence
+                </p>
+
+                <h2 className="mt-1 text-sm font-bold text-white">
+                  Service spending & anomaly signals
+                </h2>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  window.location.href = "/costs";
+                }}
+                className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-[9px] font-bold text-slate-400 transition hover:border-cyan-400/30 hover:bg-cyan-400/5 hover:text-cyan-300"
+              >
+                View Analysis →
+              </button>
+            </div>
+
+            <div className="p-5">
+              <div className="mb-5 flex items-end justify-between">
+                <div>
+                  <p className="text-[9px] uppercase tracking-widest text-slate-500">
+                    Current monthly spend
                   </p>
 
-                  <span className="rounded-lg bg-teal-50 px-2 py-1 text-[9px] font-bold text-teal-600">
-                    LIVE
-                  </span>
+                  <p className="mt-1 text-3xl font-bold tracking-tight text-white">
+                    {formatLakhs(overview.currentCost)}
+                  </p>
                 </div>
 
-                <p className="mt-5 text-3xl font-bold tracking-tight text-slate-950">
-                  {formatLakhs(overview.currentCost)}
-                </p>
+                <div className="text-right">
+                  <p className="text-[9px] uppercase tracking-widest text-slate-500">
+                    Previous
+                  </p>
 
-                <div className="mt-4 flex items-center gap-2">
-                  <span className="rounded-full bg-red-50 px-2.5 py-1 text-[9px] font-bold text-red-600">
-                    +{overview.overallChange}%
-                  </span>
-
-                  <span className="text-[10px] text-slate-400">
-                    vs previous period
-                  </span>
+                  <p className="mt-1 text-sm font-bold text-slate-400">
+                    {formatLakhs(overview.previousCost)}
+                  </p>
                 </div>
               </div>
-            </div>
 
-            {/* Previous cost */}
-            <div className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.04)] transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
-              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
-                Previous cost
-              </p>
+              <div className="space-y-3">
+                <ServiceSignal
+                  name="Service A"
+                  category="Compute"
+                  cost={serviceA?.current ?? 0}
+                  change={serviceA?.change ?? 0}
+                  signal={`Traffic +${serviceA?.traffic ?? 0}%`}
+                  tone="red"
+                />
 
-              <p className="mt-5 text-3xl font-bold tracking-tight text-slate-950">
-                {formatLakhs(overview.previousCost)}
-              </p>
+                <ServiceSignal
+                  name="Service B"
+                  category="Network"
+                  cost={serviceB?.current ?? 0}
+                  change={serviceB?.change ?? 0}
+                  signal={`Requests +${serviceB?.traffic ?? 0}%`}
+                  tone="amber"
+                />
 
-              <div className="mt-4 flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-slate-300" />
+                <ServiceSignal
+                  name="Database"
+                  category="Database"
+                  cost={124000}
+                  change={18}
+                  signal="Normal activity"
+                  tone="violet"
+                />
 
-                <span className="text-[10px] text-slate-400">
-                  Previous analysis period
-                </span>
-              </div>
-            </div>
-
-            {/* Network */}
-            <div className="group relative overflow-hidden rounded-2xl border border-teal-100 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.04)] transition-all duration-300 hover:-translate-y-1 hover:border-teal-200 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
-              <div className="absolute right-0 top-0 h-20 w-20 rounded-bl-full bg-teal-50" />
-
-              <div className="relative">
-                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
-                  Network spending
-                </p>
-
-                <p className="mt-5 text-3xl font-bold tracking-tight text-teal-600">
-                  {formatLakhs(overview.networkCost)}
-                </p>
-
-                <div className="mt-4 flex items-center gap-2">
-                  <span className="rounded-full bg-red-50 px-2.5 py-1 text-[9px] font-bold text-red-600">
-                    +{overview.networkChange}%
-                  </span>
-
-                  <span className="text-[10px] text-slate-400">
-                    strongest cost signal
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Compute */}
-            <div className="group relative overflow-hidden rounded-2xl border border-blue-100 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.04)] transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
-              <div className="absolute right-0 top-0 h-20 w-20 rounded-bl-full bg-blue-50" />
-
-              <div className="relative">
-                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
-                  Compute spending
-                </p>
-
-                <p className="mt-5 text-3xl font-bold tracking-tight text-blue-600">
-                  {formatLakhs(overview.computeCost)}
-                </p>
-
-                <div className="mt-4 flex items-center gap-2">
-                  <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[9px] font-bold text-amber-600">
-                    +{overview.computeChange}%
-                  </span>
-
-                  <span className="text-[10px] text-slate-400">
-                    usage increased
-                  </span>
-                </div>
+                <ServiceSignal
+                  name="API Gateway"
+                  category="Network"
+                  cost={96000}
+                  change={33}
+                  signal="Traffic increased"
+                  tone="cyan"
+                />
               </div>
             </div>
           </div>
-        </section>
 
-        {/* =========================================================
-            ROOT CAUSE HERO
-        ========================================================= */}
-        <section className="relative overflow-hidden rounded-[28px] border border-red-200/80 bg-white shadow-[0_10px_40px_rgba(15,23,42,0.06)]">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_90%_10%,rgba(20,184,166,0.12),transparent_28%),radial-gradient(circle_at_0%_0%,rgba(239,68,68,0.10),transparent_28%)]" />
-
-          <div className="relative p-6 lg:p-8">
-            <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-start">
+          {/* AI DECISION FEED */}
+          <div className="rounded-2xl border border-cyan-400/15 bg-[#0b192b] shadow-2xl shadow-black/20">
+            <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
               <div>
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-red-600">
-                    <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
-                    Root cause detected
-                  </span>
-
-                  <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-semibold text-slate-500 shadow-sm">
-                    Confidence {rootCause.confidence}%
-                  </span>
-                </div>
-
-                <h2 className="mt-5 max-w-4xl text-2xl font-bold leading-tight tracking-tight text-slate-950 lg:text-3xl">
-                  Service A traffic is driving downstream infrastructure
-                  usage and cloud cost growth.
-                </h2>
-
-                <p className="mt-4 max-w-4xl text-sm leading-7 text-slate-600">
-                  CloudShadow connected the increase in Service A traffic
-                  with downstream requests, compute usage and network
-                  spending.
-                </p>
-              </div>
-
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-red-100 bg-red-50 text-red-600 shadow-sm">
-                <span className="text-2xl font-bold">!</span>
-              </div>
-            </div>
-
-            {/* Signals */}
-            <div className="mt-7 grid gap-3 sm:grid-cols-3">
-              <SignalCard
-                label="Service A traffic"
-                value={`+${serviceA?.traffic}%`}
-                tone="red"
-              />
-
-              <SignalCard
-                label="Service B requests"
-                value={`+${serviceB?.traffic}%`}
-                tone="amber"
-              />
-
-              <SignalCard
-                label="Network cost"
-                value={`+${costImpact.network}%`}
-                tone="teal"
-              />
-            </div>
-
-            {/* CTA */}
-            <div className="mt-7 flex flex-wrap gap-3 border-t border-slate-100 pt-6">
-              <button
-                type="button"
-                onClick={() => {
-                  window.location.href = "/root-causes";
-                }}
-                className="rounded-xl bg-slate-950 px-5 py-3 text-xs font-bold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-lg"
-              >
-                Investigate Root Cause →
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  window.location.href = "/dependencies";
-                }}
-                className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-xs font-bold text-slate-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700"
-              >
-                View Dependency Graph →
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {/* =========================================================
-            INTELLIGENCE FLOW
-        ========================================================= */}
-        <section className="relative overflow-hidden rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_6px_30px_rgba(15,23,42,0.04)] lg:p-8">
-          <div className="absolute right-0 top-0 h-40 w-40 rounded-bl-full bg-teal-50/60" />
-
-          <div className="relative">
-            <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-teal-600">
-                  CloudShadow intelligence
+                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-cyan-400">
+                  CloudShadow AI
                 </p>
 
-                <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-900">
-                  From application behaviour to cloud bill
+                <h2 className="mt-1 text-sm font-bold text-white">
+                  Decision Support Feed
                 </h2>
               </div>
 
-              <span className="w-fit rounded-full border border-teal-100 bg-teal-50 px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider text-teal-600">
-                Causal analysis
+              <span className="rounded-full border border-emerald-400/20 bg-emerald-400/5 px-2.5 py-1 text-[8px] font-bold uppercase tracking-wider text-emerald-400">
+                Live Engine
               </span>
             </div>
 
-            <div className="relative mt-8">
-              {/* connector */}
-              <div className="absolute left-[12%] right-[12%] top-[30px] hidden h-px bg-gradient-to-r from-teal-200 via-blue-200 to-violet-200 md:block" />
+            <div className="space-y-3 p-5">
+              <DecisionFeed
+                title="Root cause detected"
+                description="Service A traffic is driving downstream infrastructure usage."
+                value={`+${costImpact.serviceTraffic}%`}
+                tone="red"
+              />
 
-              <div className="grid gap-4 md:grid-cols-4">
-                {[
-                  [
-                    "01",
-                    "Application Traffic",
-                    `+${costImpact.serviceTraffic}%`,
-                    "Traffic signal",
-                    "teal",
-                  ],
-                  [
-                    "02",
-                    "Downstream Requests",
-                    `+${serviceB?.traffic}%`,
-                    "Request signal",
-                    "blue",
-                  ],
-                  [
-                    "03",
-                    "Infrastructure Usage",
-                    `+${costImpact.compute}%`,
-                    "Usage signal",
-                    "violet",
-                  ],
-                  [
-                    "04",
-                    "Cloud Spending",
-                    `+${overview.overallChange}%`,
-                    "Billing impact",
-                    "red",
-                  ],
-                ].map(([number, title, value, label, tone]) => (
-                  <div
-                    key={number}
-                    className="group relative rounded-2xl border border-slate-200 bg-slate-50/80 p-5 transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-lg"
-                  >
-                    <div className="relative z-10 flex items-center justify-between">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[10px] font-bold text-slate-500 shadow-sm">
-                        {number}
-                      </span>
+              <DecisionFeed
+                title="Downstream impact"
+                description="Service B requests increased as upstream traffic grew."
+                value={`+${serviceB?.traffic ?? 0}%`}
+                tone="amber"
+              />
 
-                      <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-400">
-                        {label}
-                      </span>
+              <DecisionFeed
+                title="Network anomaly"
+                description="Network spending is currently the strongest cost signal."
+                value={`+${costImpact.network}%`}
+                tone="cyan"
+              />
+
+              <DecisionFeed
+                title="Optimization available"
+                description="Caching and request optimization can reduce repeated traffic."
+                value={formatINR(totalSavings)}
+                tone="green"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* ===================================================
+            ROOT CAUSE
+        =================================================== */}
+        <section className="rounded-2xl border border-red-400/15 bg-[#0b192b] shadow-2xl shadow-black/20">
+          <div className="flex flex-col justify-between gap-4 border-b border-white/10 px-5 py-4 lg:flex-row lg:items-center">
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-red-400">
+                CloudShadow Root Cause Engine
+              </p>
+
+              <h2 className="mt-1 text-sm font-bold text-white">
+                Why did the cloud bill increase?
+              </h2>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="rounded-lg border border-red-400/20 bg-red-400/5 px-3 py-2 text-[9px] font-bold text-red-300">
+                HIGH IMPACT
+              </span>
+
+              <span className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-[9px] font-bold text-slate-400">
+                {rootCause.confidence}% CONFIDENCE
+              </span>
+            </div>
+          </div>
+
+          <div className="grid gap-5 p-5 lg:grid-cols-[1.5fr_1fr]">
+            <div>
+              <div className="rounded-xl border border-red-400/10 bg-red-400/[0.03] p-5">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-red-400/20 bg-red-400/10 text-lg font-bold text-red-400">
+                    !
+                  </div>
+
+                  <div>
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-red-400">
+                      Primary finding
+                    </p>
+
+                    <h3 className="mt-2 text-lg font-bold leading-snug text-white">
+                      Service A traffic is driving downstream infrastructure
+                      usage and cloud cost growth.
+                    </h3>
+
+                    <p className="mt-2 text-xs leading-6 text-slate-400">
+                      {rootCause.title}. Increased application traffic created
+                      additional downstream requests, increasing compute and
+                      network consumption.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <SignalMini
+                  label="Service A Traffic"
+                  value={`+${serviceA?.traffic ?? 0}%`}
+                  tone="red"
+                />
+
+                <SignalMini
+                  label="Service B Requests"
+                  value={`+${serviceB?.traffic ?? 0}%`}
+                  tone="amber"
+                />
+
+                <SignalMini
+                  label="Network Cost"
+                  value={`+${costImpact.network}%`}
+                  tone="cyan"
+                />
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-white/10 bg-[#081525] p-5">
+              <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                Causal chain
+              </p>
+
+              <div className="mt-4 space-y-4">
+                {cloudAnalysis.chain.map((item, index) => (
+                  <div key={item.step} className="relative flex gap-3">
+                    {index < cloudAnalysis.chain.length - 1 && (
+                      <div className="absolute left-[11px] top-7 h-7 w-px bg-white/10" />
+                    )}
+
+                    <span className="relative z-10 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-cyan-400/20 bg-cyan-400/5 text-[8px] font-bold text-cyan-400">
+                      {item.step}
+                    </span>
+
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-200">
+                        {item.title}
+                      </p>
+
+                      <p className="mt-0.5 text-[9px] leading-4 text-slate-500">
+                        {item.description}
+                      </p>
                     </div>
-
-                    <p className="mt-6 text-sm font-semibold text-slate-700">
-                      {title}
-                    </p>
-
-                    <p
-                      className={`mt-2 text-2xl font-bold ${
-                        tone === "teal"
-                          ? "text-teal-600"
-                          : tone === "blue"
-                            ? "text-blue-600"
-                            : tone === "violet"
-                              ? "text-violet-600"
-                              : "text-red-600"
-                      }`}
-                    >
-                      {value}
-                    </p>
                   </div>
                 ))}
               </div>
             </div>
           </div>
+
+          <div className="flex flex-wrap gap-2 border-t border-white/10 px-5 py-4">
+            <button
+              type="button"
+              onClick={() => {
+                window.location.href = "/root-causes";
+              }}
+              className="rounded-lg bg-cyan-500 px-4 py-2.5 text-[9px] font-bold text-[#07111f] transition hover:bg-cyan-400"
+            >
+              Investigate Root Cause →
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                window.location.href = "/dependencies";
+              }}
+              className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2.5 text-[9px] font-bold text-slate-300 transition hover:border-cyan-400/30 hover:bg-cyan-400/5 hover:text-cyan-300"
+            >
+              Open Dependency Network →
+            </button>
+          </div>
         </section>
 
-        {/* =========================================================
-            INVESTIGATION WORKSPACE
-        ========================================================= */}
-        <section>
-          <div className="mb-5 flex items-end justify-between gap-4">
+        {/* ===================================================
+            DEPENDENCY NETWORK
+        =================================================== */}
+        <section className="rounded-2xl border border-white/10 bg-[#0b192b] shadow-2xl shadow-black/20">
+          <div className="flex flex-col justify-between gap-3 border-b border-white/10 px-5 py-4 sm:flex-row sm:items-center">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
-                Investigation workspace
+              <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-cyan-400">
+                CloudShadow Dependency Network
               </p>
 
-              <h2 className="mt-1.5 text-base font-bold text-slate-800">
-                Explore the analysis
+              <h2 className="mt-1 text-sm font-bold text-white">
+                Application behaviour → infrastructure impact
               </h2>
             </div>
 
-            <span className="hidden text-[10px] text-slate-400 sm:block">
-              Choose an analysis layer →
-            </span>
+            <button
+              type="button"
+              onClick={() => {
+                window.location.href = "/dependencies";
+              }}
+              className="w-fit rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-[9px] font-bold text-slate-400 transition hover:border-cyan-400/30 hover:text-cyan-300"
+            >
+              View Full Network →
+            </button>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            <NavCard
-              number="01"
-              title="Cost Analysis"
-              description="Break down spending by service, category and time period."
-              href="/costs"
-              icon="◈"
-            />
+          <div className="overflow-x-auto p-5">
+            <div className="flex min-w-[700px] items-center justify-center gap-3 py-8">
+              <NetworkNode
+                title="API Gateway"
+                subtitle="Entry point"
+                value="+33%"
+                tone="blue"
+              />
 
-            <NavCard
-              number="02"
-              title="Service Intelligence"
-              description="Inspect traffic, CPU, latency and billing signals."
-              href="/services"
-              icon="▦"
-            />
+              <NetworkArrow />
 
-            <NavCard
-              number="03"
-              title="Root Cause"
-              description="Trace the actual behaviour behind the bill increase."
-              href="/root-causes"
-              icon="⌁"
-            />
+              <NetworkNode
+                title="Service A"
+                subtitle="Primary signal"
+                value="+62%"
+                tone="red"
+                active
+              />
 
-            <NavCard
-              number="04"
-              title="Dependencies"
-              description="Explore the application traffic dependency graph."
-              href="/dependencies"
-              icon="◇"
-            />
+              <NetworkArrow />
 
-            <NavCard
-              number="05"
-              title="Recommendations"
-              description="Review optimization opportunities and estimated savings."
-              href="/recommendations"
-              icon="✦"
-            />
+              <NetworkNode
+                title="Service B"
+                subtitle="Downstream"
+                value="+48%"
+                tone="amber"
+                active
+              />
+
+              <NetworkArrow />
+
+              <NetworkNode
+                title="Database"
+                subtitle="Data layer"
+                value="+18%"
+                tone="violet"
+              />
+            </div>
           </div>
         </section>
 
-        {/* =========================================================
-            FOOTER
-        ========================================================= */}
-        <footer className="flex flex-col justify-between gap-2 border-t border-slate-200 pt-5 text-[10px] text-slate-400 sm:flex-row">
-          <span>CloudShadow • Analyze → Explain → Optimize</span>
+        {/* ===================================================
+            ACTIVITY + DECISION WORKSPACE
+        =================================================== */}
+        <section className="grid gap-5 xl:grid-cols-[1.3fr_1fr]">
+          <div className="rounded-2xl border border-white/10 bg-[#0b192b]">
+            <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+              <div>
+                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">
+                  Recent CloudShadow Activity
+                </p>
 
-          <span>Cloud Intelligence v1.0</span>
+                <h2 className="mt-1 text-sm font-bold text-white">
+                  Cost investigation & coordination log
+                </h2>
+              </div>
+
+              <span className="flex items-center gap-2 text-[8px] font-bold uppercase tracking-wider text-emerald-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                Live Sync
+              </span>
+            </div>
+
+            <div className="divide-y divide-white/5">
+              <ActivityRow
+                time="10:42"
+                title="Root cause identified"
+                description="Service A traffic anomaly correlated with network spending."
+                status="AI MATCH"
+                tone="cyan"
+              />
+
+              <ActivityRow
+                time="10:38"
+                title="Dependency impact traced"
+                description="Service A → Service B request amplification detected."
+                status="TRACED"
+                tone="blue"
+              />
+
+              <ActivityRow
+                time="10:31"
+                title="Cost anomaly detected"
+                description="Monthly cloud spending crossed expected baseline."
+                status="ALERT"
+                tone="red"
+              />
+
+              <ActivityRow
+                time="10:24"
+                title="Optimization generated"
+                description="Caching strategy estimated to reduce repeated traffic."
+                status="READY"
+                tone="green"
+              />
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-[#0b192b]">
+            <div className="border-b border-white/10 px-5 py-4">
+              <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">
+                CloudShadow Workspace
+              </p>
+
+              <h2 className="mt-1 text-sm font-bold text-white">
+                Continue investigation
+              </h2>
+            </div>
+
+            <div className="grid gap-2 p-4 sm:grid-cols-2 xl:grid-cols-1">
+              <ActionButton
+                title="Cost Analysis"
+                description="Explore spending trends"
+                href="/costs"
+              />
+
+              <ActionButton
+                title="Service Intelligence"
+                description="Inspect service signals"
+                href="/services"
+              />
+
+              <ActionButton
+                title="Root Cause"
+                description="Review causal evidence"
+                href="/root-causes"
+              />
+
+              <ActionButton
+                title="Recommendations"
+                description={`Review ${formatINR(totalSavings)} potential savings`}
+                href="/recommendations"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* ===================================================
+            FOOTER
+        =================================================== */}
+        <footer className="flex flex-col justify-between gap-2 border-t border-white/10 pt-5 text-[8px] uppercase tracking-wider text-slate-600 sm:flex-row">
+          <span>CloudShadow • Cloud Intelligence</span>
+
+          <span>CloudShadow v1.0 • Analysis Engine Active</span>
         </footer>
       </div>
     </div>
@@ -457,74 +594,378 @@ function Overview() {
 }
 
 /* =========================================================
-   SIGNAL CARD
-========================================================= */
+   METRIC CARD
+   ========================================================= */
 
-function SignalCard({
+function MetricCard({
+  label,
+  value,
+  change,
+  description,
+  tone,
+}: {
+  label: string;
+  value: string;
+  change: string;
+  description: string;
+  tone: "cyan" | "red" | "amber" | "blue" | "green";
+}) {
+  const tones = {
+    cyan: {
+      border: "border-cyan-400/15",
+      glow: "bg-cyan-400/5",
+      value: "text-cyan-300",
+      dot: "bg-cyan-400",
+    },
+    red: {
+      border: "border-red-400/15",
+      glow: "bg-red-400/5",
+      value: "text-red-300",
+      dot: "bg-red-400",
+    },
+    amber: {
+      border: "border-amber-400/15",
+      glow: "bg-amber-400/5",
+      value: "text-amber-300",
+      dot: "bg-amber-400",
+    },
+    blue: {
+      border: "border-blue-400/15",
+      glow: "bg-blue-400/5",
+      value: "text-blue-300",
+      dot: "bg-blue-400",
+    },
+    green: {
+      border: "border-emerald-400/15",
+      glow: "bg-emerald-400/5",
+      value: "text-emerald-300",
+      dot: "bg-emerald-400",
+    },
+  };
+
+  const style = tones[tone];
+
+  return (
+    <div
+      className={`group relative overflow-hidden rounded-xl border ${style.border} bg-[#0b192b] p-4 transition-all duration-300 hover:-translate-y-1 hover:bg-[#0d1d31]`}
+    >
+      <div
+        className={`absolute right-0 top-0 h-20 w-20 rounded-bl-full ${style.glow}`}
+      />
+
+      <div className="relative">
+        <div className="flex items-center gap-2">
+          <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
+
+          <p className="text-[8px] font-bold uppercase tracking-wider text-slate-500">
+            {label}
+          </p>
+        </div>
+
+        <p className={`mt-4 text-2xl font-bold tracking-tight ${style.value}`}>
+          {value}
+        </p>
+
+        <div className="mt-2 flex items-center gap-2">
+          <span className="text-[9px] font-bold text-slate-300">
+            {change}
+          </span>
+
+          <span className="text-[8px] text-slate-600">{description}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   SERVICE SIGNAL
+   ========================================================= */
+
+function ServiceSignal({
+  name,
+  category,
+  cost,
+  change,
+  signal,
+  tone,
+}: {
+  name: string;
+  category: string;
+  cost: number;
+  change: number;
+  signal: string;
+  tone: "red" | "amber" | "violet" | "cyan";
+}) {
+  const colors = {
+    red: "bg-red-400",
+    amber: "bg-amber-400",
+    violet: "bg-violet-400",
+    cyan: "bg-cyan-400",
+  };
+
+  return (
+    <div className="group flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-3 transition hover:border-white/10 hover:bg-white/[0.04]">
+      <span className={`h-8 w-1 rounded-full ${colors[tone]}`} />
+
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-bold text-slate-200">{name}</p>
+
+            <p className="mt-0.5 text-[8px] uppercase tracking-wider text-slate-600">
+              {category}
+            </p>
+          </div>
+
+          <div className="text-right">
+            <p className="text-[10px] font-bold text-white">
+              {formatLakhs(cost)}
+            </p>
+
+            <p className="text-[8px] font-bold text-red-400">
+              +{change}%
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-2 flex items-center gap-2">
+          <span className="h-1 w-1 rounded-full bg-slate-600" />
+
+          <span className="text-[8px] text-slate-500">{signal}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   AI DECISION FEED
+   ========================================================= */
+
+function DecisionFeed({
+  title,
+  description,
+  value,
+  tone,
+}: {
+  title: string;
+  description: string;
+  value: string;
+  tone: "red" | "amber" | "cyan" | "green";
+}) {
+  const colors = {
+    red: "border-red-400/20 bg-red-400/5 text-red-300",
+    amber: "border-amber-400/20 bg-amber-400/5 text-amber-300",
+    cyan: "border-cyan-400/20 bg-cyan-400/5 text-cyan-300",
+    green: "border-emerald-400/20 bg-emerald-400/5 text-emerald-300",
+  };
+
+  return (
+    <div className="rounded-xl border border-white/5 bg-white/[0.02] p-3.5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-bold text-slate-200">{title}</p>
+
+          <p className="mt-1 text-[8px] leading-4 text-slate-500">
+            {description}
+          </p>
+        </div>
+
+        <span
+          className={`shrink-0 rounded-lg border px-2 py-1 text-[8px] font-bold ${colors[tone]}`}
+        >
+          {value}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   SIGNAL MINI
+   ========================================================= */
+
+function SignalMini({
   label,
   value,
   tone,
 }: {
   label: string;
   value: string;
-  tone: "red" | "amber" | "teal";
+  tone: "red" | "amber" | "cyan";
 }) {
-  const styles = {
+  const colors = {
     red: {
-      border: "border-red-100",
-      bg: "bg-red-50/50",
-      value: "text-red-600",
-      dot: "bg-red-500",
+      border: "border-red-400/15",
+      value: "text-red-300",
+      dot: "bg-red-400",
     },
     amber: {
-      border: "border-amber-100",
-      bg: "bg-amber-50/50",
-      value: "text-amber-600",
-      dot: "bg-amber-500",
+      border: "border-amber-400/15",
+      value: "text-amber-300",
+      dot: "bg-amber-400",
     },
-    teal: {
-      border: "border-teal-100",
-      bg: "bg-teal-50/50",
-      value: "text-teal-600",
-      dot: "bg-teal-500",
+    cyan: {
+      border: "border-cyan-400/15",
+      value: "text-cyan-300",
+      dot: "bg-cyan-400",
     },
   };
 
-  const style = styles[tone];
+  const style = colors[tone];
 
   return (
-    <div
-      className={`rounded-2xl border ${style.border} ${style.bg} p-4 transition-all duration-200 hover:-translate-y-0.5`}
-    >
+    <div className={`rounded-xl border ${style.border} bg-white/[0.02] p-3`}>
       <div className="flex items-center gap-2">
         <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
 
-        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+        <p className="text-[8px] font-bold uppercase tracking-wider text-slate-500">
           {label}
         </p>
       </div>
 
-      <p className={`mt-2 text-2xl font-bold ${style.value}`}>{value}</p>
+      <p className={`mt-2 text-xl font-bold ${style.value}`}>{value}</p>
     </div>
   );
 }
 
 /* =========================================================
-   NAVIGATION CARD
-========================================================= */
+   NETWORK NODE
+   ========================================================= */
 
-function NavCard({
-  number,
+function NetworkNode({
+  title,
+  subtitle,
+  value,
+  tone,
+  active = false,
+}: {
+  title: string;
+  subtitle: string;
+  value: string;
+  tone: "blue" | "red" | "amber" | "violet";
+  active?: boolean;
+}) {
+  const colors = {
+    blue: {
+      border: "border-blue-400/30",
+      bg: "bg-blue-400/5",
+      value: "text-blue-300",
+    },
+    red: {
+      border: "border-red-400/40",
+      bg: "bg-red-400/10",
+      value: "text-red-300",
+    },
+    amber: {
+      border: "border-amber-400/40",
+      bg: "bg-amber-400/10",
+      value: "text-amber-300",
+    },
+    violet: {
+      border: "border-violet-400/30",
+      bg: "bg-violet-400/5",
+      value: "text-violet-300",
+    },
+  };
+
+  const style = colors[tone];
+
+  return (
+    <div
+      className={`relative min-w-[145px] rounded-xl border p-4 text-center transition-all duration-300 hover:-translate-y-1 ${style.border} ${style.bg} ${
+        active ? "shadow-[0_0_25px_rgba(34,211,238,0.08)]" : ""
+      }`}
+    >
+      {active && (
+        <span className="absolute -right-1.5 -top-1.5 h-2.5 w-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]" />
+      )}
+
+      <p className="text-[10px] font-bold text-white">{title}</p>
+
+      <p className="mt-1 text-[8px] text-slate-500">{subtitle}</p>
+
+      <p className={`mt-3 text-lg font-bold ${style.value}`}>{value}</p>
+    </div>
+  );
+}
+
+/* =========================================================
+   NETWORK ARROW
+   ========================================================= */
+
+function NetworkArrow() {
+  return (
+    <div className="flex items-center gap-1">
+      <span className="h-px w-7 bg-cyan-400/20" />
+
+      <span className="text-cyan-400/60">›</span>
+    </div>
+  );
+}
+
+/* =========================================================
+   ACTIVITY ROW
+   ========================================================= */
+
+function ActivityRow({
+  time,
+  title,
+  description,
+  status,
+  tone,
+}: {
+  time: string;
+  title: string;
+  description: string;
+  status: string;
+  tone: "cyan" | "blue" | "red" | "green";
+}) {
+  const colors = {
+    cyan: "text-cyan-300 border-cyan-400/20 bg-cyan-400/5",
+    blue: "text-blue-300 border-blue-400/20 bg-blue-400/5",
+    red: "text-red-300 border-red-400/20 bg-red-400/5",
+    green: "text-emerald-300 border-emerald-400/20 bg-emerald-400/5",
+  };
+
+  return (
+    <div className="flex gap-4 px-5 py-3.5">
+      <span className="w-10 shrink-0 pt-0.5 font-mono text-[8px] text-slate-600">
+        {time}
+      </span>
+
+      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-400" />
+
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="text-[9px] font-bold text-slate-300">{title}</p>
+
+          <span
+            className={`rounded-md border px-1.5 py-0.5 text-[7px] font-bold ${colors[tone]}`}
+          >
+            {status}
+          </span>
+        </div>
+
+        <p className="mt-1 text-[8px] text-slate-600">{description}</p>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   ACTION BUTTON
+   ========================================================= */
+
+function ActionButton({
   title,
   description,
   href,
-  icon,
 }: {
-  number: string;
   title: string;
   description: string;
   href: string;
-  icon: string;
 }) {
   return (
     <button
@@ -532,34 +973,17 @@ function NavCard({
       onClick={() => {
         window.location.href = href;
       }}
-      className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-[0_4px_20px_rgba(15,23,42,0.03)] transition-all duration-300 hover:-translate-y-1 hover:border-teal-200 hover:shadow-[0_14px_35px_rgba(15,23,42,0.08)]"
+      className="group flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3 text-left transition hover:border-cyan-400/20 hover:bg-cyan-400/[0.03]"
     >
-      <div className="absolute right-0 top-0 h-24 w-24 rounded-bl-full bg-slate-50 transition-colors duration-300 group-hover:bg-teal-50" />
+      <div>
+        <p className="text-[9px] font-bold text-slate-200">{title}</p>
 
-      <div className="relative">
-        <div className="flex items-center justify-between">
-          <span className="text-[9px] font-bold uppercase tracking-widest text-slate-300">
-            {number}
-          </span>
-
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-50 text-sm font-bold text-teal-600 transition-all duration-300 group-hover:bg-teal-600 group-hover:text-white">
-            {icon}
-          </span>
-        </div>
-
-        <h3 className="mt-6 text-sm font-bold text-slate-900">{title}</h3>
-
-        <p className="mt-2 max-w-sm text-xs leading-5 text-slate-500">
-          {description}
-        </p>
-
-        <div className="mt-5 flex items-center gap-2 text-[10px] font-bold text-teal-600">
-          Explore analysis
-          <span className="transition-transform duration-300 group-hover:translate-x-1">
-            →
-          </span>
-        </div>
+        <p className="mt-0.5 text-[8px] text-slate-600">{description}</p>
       </div>
+
+      <span className="text-xs text-slate-600 transition group-hover:text-cyan-400">
+        →
+      </span>
     </button>
   );
 }
