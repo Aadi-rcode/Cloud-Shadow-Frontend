@@ -7,604 +7,539 @@ import { cloudAnalysis, formatINR, formatLakhs } from "../cloudData";
 
 const periods = ["7D", "30D", "90D"];
 
-const services = cloudAnalysis.services;
-const categories = cloudAnalysis.categories;
-const trend = cloudAnalysis.trend;
-
 export default function CostsPage() {
   const [period, setPeriod] = useState("30D");
   const [category, setCategory] = useState("All");
   const [selectedService, setSelectedService] = useState("Service A");
-  const [showDetails, setShowDetails] = useState(false);
+
+  const { overview, services, categories, trend } = cloudAnalysis;
 
   const filteredServices = useMemo(() => {
     if (category === "All") return services;
-
     return services.filter((service) => service.category === category);
-  }, [category]);
+  }, [category, services]);
 
-  const selected = services.find(
-    (service) => service.name === selectedService
-  );
+  const selected =
+    services.find((service) => service.name === selectedService) ??
+    services[0];
 
-  const periodLabel =
-    period === "7D"
-      ? "Last 7 days"
-      : period === "90D"
-        ? "Last 90 days"
-        : "Last 30 days";
-
-  const { overview } = cloudAnalysis;
+  const maxTrend = Math.max(...trend.map((item) => item.value));
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
+    <main className="min-h-screen bg-[#07111f] text-white">
       <Sidebar />
 
       <section className="lg:ml-[250px]">
         {/* HEADER */}
-        <header className="border-b border-slate-200 bg-white">
-          <div className="px-5 py-7 sm:px-7 lg:px-10 lg:py-9">
-            <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+        <header className="border-b border-white/10 bg-[#081321]/95">
+          <div className="px-5 py-6 sm:px-7 lg:px-10">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <div className="mb-3 flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-teal-500" />
-
-                  <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-teal-600">
-                    Financial intelligence
+                  <span className="h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_12px_rgba(34,211,238,.8)]" />
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400">
+                    CloudShadow / Financial Intelligence
                   </span>
                 </div>
 
-                <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+                <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
                   Cost Analysis
                 </h1>
 
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-500">
-                  Explore spending patterns, identify cost drivers, and
-                  understand what changed inside your cloud environment.
+                <p className="mt-2 max-w-2xl text-sm text-slate-400">
+                  Detect spending anomalies, isolate cost drivers and connect
+                  billing changes with application behaviour.
                 </p>
               </div>
 
-              <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50 p-1">
-                {periods.map((item) => {
-                  const active = period === item;
+              <div className="flex items-center gap-3">
+                <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/5 px-4 py-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+                      Analysis Engine Active
+                    </span>
+                  </div>
+                </div>
 
-                  return (
+                <div className="flex rounded-xl border border-white/10 bg-white/[0.03] p-1">
+                  {periods.map((item) => (
                     <button
                       key={item}
                       type="button"
                       onClick={() => setPeriod(item)}
-                      className={
-                        "rounded-lg px-4 py-2 text-xs font-bold transition " +
-                        (active
-                          ? "bg-slate-900 text-white shadow-sm"
-                          : "text-slate-500 hover:bg-white hover:text-slate-800")
-                      }
+                      className={`rounded-lg px-3 py-2 text-[10px] font-bold transition ${
+                        period === item
+                          ? "bg-cyan-400 text-slate-950"
+                          : "text-slate-400 hover:bg-white/10 hover:text-white"
+                      }`}
                     >
                       {item}
                     </button>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </header>
 
-        <div className="space-y-7 p-5 sm:p-7 lg:p-10">
-          {/* CONTEXT */}
-          <div className="flex flex-col justify-between gap-4 rounded-2xl border border-teal-100 bg-teal-50/70 p-4 sm:flex-row sm:items-center">
-            <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-teal-600 shadow-sm ring-1 ring-teal-100">
-                ◈
-              </span>
-
-              <div>
-                <p className="text-xs font-bold text-slate-800">
-                  Analysis window
-                </p>
-
-                <p className="mt-0.5 text-[11px] text-slate-500">
-                  Showing cloud spending for {periodLabel.toLowerCase()}
-                </p>
+        <div className="space-y-5 p-5 sm:p-7 lg:p-10">
+          {/* KPI STRIP */}
+          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="rounded-2xl border border-cyan-400/20 bg-gradient-to-br from-cyan-400/10 to-transparent p-5">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Current Cloud Cost
+                </span>
+                <span className="text-cyan-400">₹</span>
+              </div>
+              <div className="mt-3 text-3xl font-bold">
+                {formatLakhs(overview.currentCost)}
+              </div>
+              <div className="mt-2 text-xs text-red-400">
+                ▲ {overview.overallChange}% vs previous period
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-[10px] font-semibold text-emerald-700">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              Analysis engine ready
-            </div>
-          </div>
-
-          {/* SUMMARY */}
-          <section>
-            <div className="mb-4">
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
-                Financial overview
-              </p>
-
-              <h2 className="mt-1 text-sm font-semibold text-slate-700">
-                Where your cloud spending stands
-              </h2>
+            <div className="rounded-2xl border border-red-400/20 bg-gradient-to-br from-red-400/10 to-transparent p-5">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Cost Spike
+                </span>
+                <span className="text-red-400">▲</span>
+              </div>
+              <div className="mt-3 text-3xl font-bold text-red-300">
+                +{overview.overallChange}%
+              </div>
+              <div className="mt-2 text-xs text-slate-500">
+                ₹{((overview.currentCost - overview.previousCost) / 100000).toFixed(2)}L incremental
+              </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {/* CURRENT COST */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-slate-400">
-                    Current cost
-                  </p>
-
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-50 font-bold text-teal-600 ring-1 ring-teal-100">
-                    ₹
-                  </span>
-                </div>
-
-                <p className="mt-5 text-3xl font-bold tracking-tight text-slate-950">
-                  {formatLakhs(overview.currentCost)}
-                </p>
-
-                <div className="mt-3 flex items-center gap-2">
-                  <span className="rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-bold text-red-600">
-                    +{overview.overallChange}%
-                  </span>
-
-                  <span className="text-xs text-slate-400">
-                    vs previous
-                  </span>
-                </div>
+            <div className="rounded-2xl border border-orange-400/20 bg-gradient-to-br from-orange-400/10 to-transparent p-5">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Network Spending
+                </span>
+                <span className="text-orange-400">⌁</span>
               </div>
-
-              {/* PREVIOUS COST */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-slate-400">
-                    Previous cost
-                  </p>
-
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 font-bold text-slate-500 ring-1 ring-slate-200">
-                    ↙
-                  </span>
-                </div>
-
-                <p className="mt-5 text-3xl font-bold tracking-tight text-slate-950">
-                  {formatLakhs(overview.previousCost)}
-                </p>
-
-                <p className="mt-3 text-xs text-slate-400">
-                  Previous billing period
-                </p>
+              <div className="mt-3 text-3xl font-bold">
+                {formatLakhs(overview.networkCost)}
               </div>
-
-              {/* NETWORK */}
-              <div className="rounded-2xl border border-red-200 bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-slate-400">
-                    Network cost
-                  </p>
-
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 font-bold text-red-600 ring-1 ring-red-100">
-                    ⌁
-                  </span>
-                </div>
-
-                <p className="mt-5 text-3xl font-bold tracking-tight text-slate-950">
-                  {formatLakhs(overview.networkCost)}
-                </p>
-
-                <p className="mt-3 text-xs font-bold text-red-600">
-                  +{overview.networkChange}% increase
-                </p>
+              <div className="mt-2 text-xs text-orange-300">
+                +{overview.networkChange}% — strongest signal
               </div>
+            </div>
 
-              {/* COMPUTE */}
-              <div className="rounded-2xl border border-amber-200 bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-slate-400">
-                    Compute cost
-                  </p>
-
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 font-bold text-amber-600 ring-1 ring-amber-100">
-                    ◈
-                  </span>
-                </div>
-
-                <p className="mt-5 text-3xl font-bold tracking-tight text-slate-950">
-                  {formatLakhs(overview.computeCost)}
-                </p>
-
-                <p className="mt-3 text-xs font-bold text-amber-600">
-                  +{overview.computeChange}% increase
-                </p>
+            <div className="rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-400/10 to-transparent p-5">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Potential Saving
+                </span>
+                <span className="text-emerald-400">✦</span>
+              </div>
+              <div className="mt-3 text-3xl font-bold text-emerald-300">
+                ₹84K
+              </div>
+              <div className="mt-2 text-xs text-slate-500">
+                Identified optimization opportunity
               </div>
             </div>
           </section>
 
-          {/* TREND */}
-          <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div className="flex flex-col justify-between gap-4 border-b border-slate-100 px-6 py-5 sm:flex-row sm:items-start">
-              <div>
-                <h2 className="text-sm font-bold text-slate-900">
-                  Cloud spending trend
-                </h2>
-
-                <p className="mt-1 text-xs text-slate-400">
-                  Daily spending movement • {periodLabel}
-                </p>
-              </div>
-
-              <span className="rounded-full bg-teal-50 px-3 py-1.5 text-[9px] font-bold text-teal-700 ring-1 ring-teal-100">
-                LIVE VIEW
-              </span>
-            </div>
-
-            <div className="p-6">
-              <div className="mb-6 flex items-end justify-between">
+          {/* MAIN VISUAL AREA */}
+          <section className="grid gap-5 xl:grid-cols-[1.7fr_.8fr]">
+            {/* TREND CHART */}
+            <div className="rounded-2xl border border-white/10 bg-[#0b1727] p-5 sm:p-6">
+              <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">
-                    Latest daily spend
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold">
+                      Cloud Spending Velocity
+                    </span>
+                    <span className="rounded-full border border-red-400/20 bg-red-400/10 px-2 py-1 text-[8px] font-bold text-red-300">
+                      SPIKE DETECTED
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Daily spend movement · {period}
                   </p>
+                </div>
 
-                  <p className="mt-1 text-2xl font-bold text-slate-950">
+                <div className="text-right">
+                  <p className="text-[9px] uppercase tracking-wider text-slate-500">
+                    Latest
+                  </p>
+                  <p className="text-lg font-bold text-cyan-300">
                     {formatINR(trend[trend.length - 1].cost)}
                   </p>
                 </div>
-
-                <span className="rounded-full bg-red-50 px-3 py-1.5 text-[10px] font-bold text-red-600">
-                  Rising trend
-                </span>
               </div>
 
-              <div className="relative h-60">
-                <div className="pointer-events-none absolute inset-0 flex flex-col justify-between">
-                  {[1, 2, 3, 4, 5].map((line) => (
+              <div className="mt-8 flex h-64 items-end gap-2 border-b border-white/10">
+                {trend.map((item, index) => {
+                  const active = index === trend.length - 1;
+                  const height = (item.value / maxTrend) * 100;
+
+                  return (
                     <div
-                      key={line}
-                      className="border-t border-dashed border-slate-100"
-                    />
-                  ))}
-                </div>
+                      key={item.date}
+                      className="group relative flex h-full flex-1 items-end"
+                    >
+                      <div className="absolute inset-x-0 top-0 flex flex-col justify-between opacity-30">
+                        <span className="border-t border-dashed border-slate-700" />
+                        <span className="border-t border-dashed border-slate-700" />
+                        <span className="border-t border-dashed border-slate-700" />
+                        <span className="border-t border-dashed border-slate-700" />
+                      </div>
 
-                <div className="relative flex h-full items-end gap-2 sm:gap-5">
-                  {trend.map((item, index) => {
-                    const active = index === trend.length - 1;
-
-                    return (
                       <div
-                        key={item.date}
-                        className="group flex h-full flex-1 items-end justify-center"
+                        className={`relative w-full rounded-t-lg transition-all ${
+                          active
+                            ? "bg-gradient-to-t from-red-500 to-orange-300 shadow-[0_0_25px_rgba(239,68,68,.35)]"
+                            : "bg-gradient-to-t from-cyan-700/70 to-cyan-300/70 group-hover:from-cyan-500 group-hover:to-cyan-300"
+                        }`}
+                        style={{ height: `${height}%` }}
                       >
-                        <div className="relative flex h-full w-full max-w-12 items-end">
-                          <div
-                            className={
-                              "w-full rounded-t-xl transition-all duration-300 " +
-                              (active
-                                ? "bg-teal-500 shadow-[0_0_18px_rgba(20,184,166,0.2)]"
-                                : "bg-teal-100 group-hover:bg-teal-300")
-                            }
-                            style={{ height: item.value + "%" }}
-                          />
-
-                          <div className="absolute -top-9 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[9px] font-bold text-slate-700 opacity-0 shadow-lg transition group-hover:opacity-100">
-                            {formatINR(item.cost)}
-                          </div>
+                        <div className="absolute -top-7 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded-md border border-white/10 bg-[#111f32] px-2 py-1 text-[9px] font-bold group-hover:block">
+                          {formatINR(item.cost)}
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
+                    </div>
+                  );
+                })}
               </div>
 
-              <div className="mt-4 flex justify-between text-[9px] font-medium text-slate-400 sm:text-[10px]">
+              <div className="mt-3 flex justify-between text-[9px] text-slate-500">
                 {trend.map((item) => (
                   <span key={item.date}>{item.date}</span>
                 ))}
               </div>
             </div>
-          </section>
 
-          {/* SERVICES + CATEGORIES */}
-          <section className="grid gap-6 lg:grid-cols-3">
-            {/* SERVICES */}
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:col-span-2">
-              <div className="flex flex-col justify-between gap-4 border-b border-slate-100 px-6 py-5 sm:flex-row sm:items-center">
-                <div>
-                  <h2 className="text-sm font-bold text-slate-900">
-                    Service-wise cost
-                  </h2>
+            {/* COST DRIVER */}
+            <div className="rounded-2xl border border-red-400/20 bg-gradient-to-b from-red-400/10 to-[#0b1727] p-5 sm:p-6">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-red-300">
+                  Primary Cost Driver
+                </span>
+                <span className="rounded-full bg-red-400/10 px-2 py-1 text-[8px] font-bold text-red-300">
+                  HIGH IMPACT
+                </span>
+              </div>
 
-                  <p className="mt-1 text-xs text-slate-400">
-                    Select a service to investigate its spending behaviour
+              <div className="mt-8">
+                <p className="text-4xl font-bold">Network</p>
+                <p className="mt-2 text-sm text-slate-400">
+                  {formatLakhs(overview.networkCost)} current spend
+                </p>
+              </div>
+
+              <div className="mt-7">
+                <div className="mb-2 flex justify-between text-xs">
+                  <span className="text-slate-500">Cost increase</span>
+                  <span className="font-bold text-red-300">
+                    +{overview.networkChange}%
+                  </span>
+                </div>
+
+                <div className="h-3 overflow-hidden rounded-full bg-white/5">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-red-600 to-orange-300"
+                    style={{ width: `${overview.networkChange}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-7 space-y-3">
+                <div className="rounded-xl border border-white/5 bg-black/10 p-3">
+                  <p className="text-[9px] uppercase tracking-wider text-slate-500">
+                    Connected signal
+                  </p>
+                  <p className="mt-1 text-xs font-semibold text-slate-200">
+                    Service A traffic +62%
                   </p>
                 </div>
 
-                <select
-                  value={category}
-                  onChange={(event) => setCategory(event.target.value)}
-                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 outline-none focus:border-teal-400"
-                >
-                  <option value="All">All categories</option>
-                  <option value="Compute">Compute</option>
-                  <option value="Network">Network</option>
-                  <option value="Database">Database</option>
-                </select>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[680px] text-left text-sm">
-                  <thead>
-                    <tr className="border-b border-slate-100 text-[10px] uppercase tracking-wider text-slate-400">
-                      <th className="px-6 py-4 font-bold">Service</th>
-                      <th className="px-4 py-4 font-bold">Category</th>
-                      <th className="px-4 py-4 font-bold">Current</th>
-                      <th className="px-4 py-4 font-bold">Previous</th>
-                      <th className="px-6 py-4 text-right font-bold">
-                        Change
-                      </th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {filteredServices.map((service) => {
-                      const active = selectedService === service.name;
-
-                      return (
-                        <tr
-                          key={service.name}
-                          onClick={() => {
-                            setSelectedService(service.name);
-                            setShowDetails(true);
-                          }}
-                          className={
-                            "cursor-pointer border-b border-slate-100 transition " +
-                            (active
-                              ? "bg-teal-50/60"
-                              : "hover:bg-slate-50")
-                          }
-                        >
-                          <td className="px-6 py-5">
-                            <div className="flex items-center gap-3">
-                              <span
-                                className={
-                                  "flex h-9 w-9 items-center justify-center rounded-lg text-sm font-bold " +
-                                  (active
-                                    ? "bg-teal-100 text-teal-700"
-                                    : "bg-slate-100 text-slate-500")
-                                }
-                              >
-                                ◈
-                              </span>
-
-                              <div>
-                                <p className="font-semibold text-slate-800">
-                                  {service.name}
-                                </p>
-
-                                <div className="mt-2 h-1.5 w-16 overflow-hidden rounded-full bg-slate-100">
-                                  <div
-                                    className="h-full rounded-full bg-teal-500"
-                                    style={{ width: service.width + "%" }}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-
-                          <td className="px-4 py-5">
-                            <span className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-500">
-                              {service.category}
-                            </span>
-                          </td>
-
-                          <td className="px-4 py-5 font-semibold text-slate-800">
-                            {formatINR(service.current)}
-                          </td>
-
-                          <td className="px-4 py-5 text-slate-400">
-                            {formatINR(service.previous)}
-                          </td>
-
-                          <td className="px-6 py-5 text-right">
-                            <span className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-bold text-red-600">
-                              +{service.change}%
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-
-              {filteredServices.length === 0 && (
-                <div className="p-10 text-center text-sm text-slate-400">
-                  No services found for this category.
+                <div className="rounded-xl border border-white/5 bg-black/10 p-3">
+                  <p className="text-[9px] uppercase tracking-wider text-slate-500">
+                    Downstream effect
+                  </p>
+                  <p className="mt-1 text-xs font-semibold text-slate-200">
+                    Service B requests +48%
+                  </p>
                 </div>
-              )}
-            </div>
-
-            {/* CATEGORY */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <h2 className="text-sm font-bold text-slate-900">
-                Cost by category
-              </h2>
-
-              <p className="mt-1 text-xs text-slate-400">
-                Current spending distribution
-              </p>
-
-              <div className="mt-7 space-y-6">
-                {categories.map((item) => (
-                  <div key={item.name}>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-slate-600">
-                        {item.name}
-                      </span>
-
-                      <span className="text-sm font-bold text-slate-900">
-                        {formatLakhs(item.cost)}
-                      </span>
-                    </div>
-
-                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
-                      <div
-                        className={"h-full rounded-full " + item.color}
-                        style={{ width: item.percentage * 2.7 + "%" }}
-                      />
-                    </div>
-
-                    <div className="mt-2 flex justify-between">
-                      <span className="text-[10px] text-slate-400">
-                        Share of total
-                      </span>
-
-                      <span className="text-[10px] font-bold text-slate-500">
-                        {item.percentage}%
-                      </span>
-                    </div>
-                  </div>
-                ))}
               </div>
 
-              <div className="mt-7 rounded-xl bg-teal-50 p-4 ring-1 ring-teal-100">
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-teal-600">
-                  Largest category
-                </p>
-
-                <p className="mt-2 text-lg font-bold text-slate-900">
-                  Network
-                </p>
-
-                <p className="mt-1 text-xs leading-5 text-slate-500">
-                  Network represents the largest visible share of current
-                  cloud spending.
-                </p>
-              </div>
+              <Link
+                href="/root-causes"
+                className="mt-6 flex items-center justify-center rounded-xl bg-red-500 px-4 py-3 text-xs font-bold text-white transition hover:bg-red-400"
+              >
+                Investigate Root Cause →
+              </Link>
             </div>
           </section>
 
-          {/* SELECTED SERVICE */}
-          {showDetails && selected && (
-            <section className="rounded-2xl border border-teal-200 bg-white p-6 shadow-sm sm:p-7">
-              <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 font-bold text-teal-600 ring-1 ring-teal-100">
-                    ◈
+          {/* SERVICE HEATMAP */}
+          <section className="rounded-2xl border border-white/10 bg-[#0b1727]">
+            <div className="flex flex-col gap-4 border-b border-white/10 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold">
+                    Service Cost Signals
                   </span>
+                  <span className="text-[9px] text-slate-500">
+                    {filteredServices.length} services monitored
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-slate-500">
+                  Select a service to inspect its cost behaviour.
+                </p>
+              </div>
 
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-teal-600">
-                      Selected service
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="rounded-lg border border-white/10 bg-[#111f32] px-3 py-2 text-xs text-slate-300 outline-none"
+              >
+                <option value="All">All categories</option>
+                <option value="Compute">Compute</option>
+                <option value="Network">Network</option>
+                <option value="Database">Database</option>
+              </select>
+            </div>
+
+            <div className="grid gap-3 p-5 sm:grid-cols-2 xl:grid-cols-4">
+              {filteredServices.map((service) => {
+                const active = selected.name === service.name;
+
+                return (
+                  <button
+                    key={service.name}
+                    type="button"
+                    onClick={() => setSelectedService(service.name)}
+                    className={`text-left rounded-2xl border p-4 transition ${
+                      active
+                        ? "border-cyan-400/40 bg-cyan-400/[0.07]"
+                        : "border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold">
+                        {service.name}
+                      </span>
+                      <span
+                        className={`rounded-full px-2 py-1 text-[8px] font-bold ${
+                          service.status === "Critical"
+                            ? "bg-red-400/10 text-red-300"
+                            : service.status === "Warning"
+                              ? "bg-orange-400/10 text-orange-300"
+                              : "bg-emerald-400/10 text-emerald-300"
+                        }`}
+                      >
+                        {service.status}
+                      </span>
+                    </div>
+
+                    <p className="mt-1 text-[9px] text-slate-500">
+                      {service.category}
                     </p>
 
-                    <h2 className="mt-1 text-xl font-bold text-slate-950">
-                      {selected.name}
-                    </h2>
-                  </div>
+                    <div className="mt-5 flex items-end justify-between">
+                      <div>
+                        <p className="text-xl font-bold">
+                          {formatLakhs(service.current)}
+                        </p>
+                        <p className="mt-1 text-[9px] text-slate-500">
+                          Previous {formatINR(service.previous)}
+                        </p>
+                      </div>
+
+                      <span className="text-sm font-bold text-red-300">
+                        +{service.change}%
+                      </span>
+                    </div>
+
+                    <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/5">
+                      <div
+                        className="h-full rounded-full bg-cyan-400"
+                        style={{ width: `${service.width}%` }}
+                      />
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* SELECTED SERVICE INTELLIGENCE */}
+          <section className="grid gap-5 lg:grid-cols-[1.1fr_1fr]">
+            <div className="rounded-2xl border border-cyan-400/20 bg-[#0b1727] p-5 sm:p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-cyan-400">
+                    Selected Signal
+                  </p>
+                  <h2 className="mt-1 text-2xl font-bold">
+                    {selected.name}
+                  </h2>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => setShowDetails(false)}
-                  className="w-fit rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-500 transition hover:bg-slate-100"
-                >
-                  Close
-                </button>
+                <span className="rounded-full border border-red-400/20 bg-red-400/10 px-3 py-1 text-[9px] font-bold text-red-300">
+                  +{selected.change}% COST
+                </span>
               </div>
 
-              <div className="mt-7 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-xl bg-red-50 p-4 ring-1 ring-red-100">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-red-500">
-                    Cost increase
+              <div className="mt-6 grid grid-cols-3 gap-2">
+                <div className="rounded-xl bg-white/[0.03] p-3">
+                  <p className="text-[8px] uppercase text-slate-500">
+                    Traffic
                   </p>
-
-                  <p className="mt-2 text-xl font-bold text-red-700">
-                    +{selected.change}%
-                  </p>
-                </div>
-
-                <div className="rounded-xl bg-teal-50 p-4 ring-1 ring-teal-100">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-teal-600">
-                    Traffic signal
-                  </p>
-
-                  <p className="mt-2 text-xl font-bold text-teal-700">
+                  <p className="mt-2 text-lg font-bold text-cyan-300">
                     +{selected.traffic}%
                   </p>
                 </div>
 
-                <div className="rounded-xl bg-amber-50 p-4 ring-1 ring-amber-100">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600">
-                    Impact
-                  </p>
+                <div className="rounded-xl bg-white/[0.03] p-3">
+                  <p className="text-[8px] uppercase text-slate-500">CPU</p>
+                  <p className="mt-2 text-lg font-bold">{selected.cpu}%</p>
+                </div>
 
-                  <p className="mt-2 text-xl font-bold text-amber-700">
-                    {selected.impact}
+                <div className="rounded-xl bg-white/[0.03] p-3">
+                  <p className="text-[8px] uppercase text-slate-500">
+                    Latency
                   </p>
+                  <p className="mt-2 text-lg font-bold">{selected.latency}</p>
                 </div>
               </div>
+            </div>
 
-              <div className="mt-5 rounded-xl bg-slate-50 p-4">
-                <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">
-                  Intelligence signal
-                </p>
+            <div className="rounded-2xl border border-white/10 bg-[#0b1727] p-5 sm:p-6">
+              <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-slate-500">
+                Intelligence Explanation
+              </p>
 
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  {selected.description}
-                </p>
-              </div>
-            </section>
-          )}
-
-          {/* COST INTELLIGENCE */}
-          <section className="rounded-2xl border border-red-200 bg-gradient-to-r from-red-50 via-white to-orange-50 p-6 shadow-sm sm:p-7">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex gap-4">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-red-100 font-bold text-red-600 ring-1 ring-red-200">
-                  !
+              <div className="mt-4 flex gap-3">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-400/10 text-cyan-300">
+                  AI
                 </div>
 
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-red-600">
-                    Cost intelligence
+                  <p className="text-sm font-semibold text-slate-200">
+                    {selected.reason}
                   </p>
-
-                  <h2 className="mt-2 text-xl font-bold text-slate-950">
-                    Network spending is the strongest cost signal.
-                  </h2>
-
-                  <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-                    Network cost increased by{" "}
-                    <span className="font-bold text-red-600">
-                      +{overview.networkChange}%
-                    </span>
-                    . The application behaviour behind this increase can be
-                    investigated through Root Cause and Dependency analysis.
+                  <p className="mt-2 text-xs leading-5 text-slate-500">
+                    {selected.description}
                   </p>
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-3">
-                <Link
-                  href="/root-causes"
-                  className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-bold text-slate-700 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-700"
-                >
-                  Investigate Root Cause →
-                </Link>
-
-                <Link
-                  href="/recommendations"
-                  className="rounded-xl bg-slate-900 px-4 py-3 text-xs font-bold text-white transition hover:bg-slate-800"
-                >
-                  View Recommendations →
-                </Link>
-              </div>
+              <Link
+                href="/root-causes"
+                className="mt-5 inline-flex text-xs font-bold text-cyan-300 hover:text-cyan-200"
+              >
+                Trace this signal →
+              </Link>
             </div>
           </section>
 
-          <footer className="flex flex-col justify-between gap-2 border-t border-slate-200 pt-5 text-[10px] text-slate-400 sm:flex-row">
-            <span>CloudShadow • Cost Intelligence</span>
+          {/* CATEGORY DISTRIBUTION */}
+          <section className="rounded-2xl border border-white/10 bg-[#0b1727] p-5 sm:p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-bold">Spend Distribution</h2>
+                <p className="mt-1 text-xs text-slate-500">
+                  Current cloud spending by category
+                </p>
+              </div>
 
-            <span>Tracking spending patterns &amp; billing signals</span>
+              <Link
+                href="/services"
+                className="text-[10px] font-bold text-cyan-300"
+              >
+                View Services →
+              </Link>
+            </div>
+
+            <div className="mt-6 space-y-4">
+              {categories.map((item) => (
+                <div key={item.name}>
+                  <div className="mb-2 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`h-2 w-2 rounded-full ${
+                          item.name === "Network"
+                            ? "bg-cyan-400"
+                            : item.name === "Compute"
+                              ? "bg-blue-400"
+                              : item.name === "Database"
+                                ? "bg-violet-400"
+                                : "bg-amber-400"
+                        }`}
+                      />
+                      <span className="text-xs font-semibold text-slate-300">
+                        {item.name}
+                      </span>
+                    </div>
+
+                    <span className="text-xs font-bold">
+                      {formatLakhs(item.cost)} · {item.percentage}%
+                    </span>
+                  </div>
+
+                  <div className="h-2 overflow-hidden rounded-full bg-white/5">
+                    <div
+                      className={`h-full rounded-full ${
+                        item.name === "Network"
+                          ? "bg-cyan-400"
+                          : item.name === "Compute"
+                            ? "bg-blue-400"
+                            : item.name === "Database"
+                              ? "bg-violet-400"
+                              : "bg-amber-400"
+                      }`}
+                      style={{ width: `${item.percentage * 2.7}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* BOTTOM ACTION */}
+          <section className="flex flex-col gap-4 rounded-2xl border border-red-400/20 bg-gradient-to-r from-red-500/10 via-transparent to-cyan-500/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-red-300">
+                Cost Intelligence Alert
+              </p>
+              <h2 className="mt-1 text-lg font-bold">
+                Network spending is the strongest billing signal.
+              </h2>
+              <p className="mt-1 text-xs text-slate-500">
+                Trace the signal to understand what application behaviour
+                created the additional cost.
+              </p>
+            </div>
+
+            <div className="flex gap-2">
+              <Link
+                href="/root-causes"
+                className="rounded-xl bg-red-500 px-4 py-3 text-xs font-bold text-white hover:bg-red-400"
+              >
+                Root Cause →
+              </Link>
+
+              <Link
+                href="/recommendations"
+                className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs font-bold text-slate-300 hover:bg-white/10"
+              >
+                Optimize →
+              </Link>
+            </div>
+          </section>
+
+          <footer className="border-t border-white/10 pt-5 text-[9px] text-slate-600">
+            CloudShadow · Cost Intelligence Engine · {period} analysis window
           </footer>
         </div>
       </section>

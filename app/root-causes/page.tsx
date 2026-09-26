@@ -1,52 +1,64 @@
+
 "use client";
 
 import Link from "next/link";
 import Sidebar from "../Sidebar";
 import { cloudAnalysis } from "../cloudData";
 
+function Metric({
+  label,
+  value,
+  sub,
+  tone = "teal",
+}: {
+  label: string;
+  value: string;
+  sub: string;
+  tone?: "red" | "amber" | "teal" | "blue";
+}) {
+  const tones = {
+    red: "text-red-400 border-red-500/20 bg-red-500/10",
+    amber: "text-amber-400 border-amber-500/20 bg-amber-500/10",
+    teal: "text-teal-400 border-teal-500/20 bg-teal-500/10",
+    blue: "text-blue-400 border-blue-500/20 bg-blue-500/10",
+  };
+
+  return (
+    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5">
+      <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
+        {label}
+      </p>
+
+      <p className={`mt-3 text-2xl font-bold ${tones[tone].split(" ")[0]}`}>
+        {value}
+      </p>
+
+      <p className="mt-1 text-xs text-slate-500">{sub}</p>
+    </div>
+  );
+}
+
 function SignalBar({
   label,
   value,
   width,
-  tone,
+  color,
 }: {
   label: string;
   value: string;
   width: string;
-  tone: "red" | "orange" | "amber";
+  color: string;
 }) {
-  const styles = {
-    red: {
-      text: "text-red-600",
-      bg: "bg-red-500",
-      track: "bg-red-50",
-    },
-    orange: {
-      text: "text-orange-600",
-      bg: "bg-orange-500",
-      track: "bg-orange-50",
-    },
-    amber: {
-      text: "text-amber-600",
-      bg: "bg-amber-500",
-      track: "bg-amber-50",
-    },
-  };
-
-  const style = styles[tone];
-
   return (
     <div>
-      <div className="flex items-center justify-between text-sm">
-        <span className="font-medium text-slate-600">{label}</span>
-        <span className={`font-bold ${style.text}`}>{value}</span>
+      <div className="mb-2 flex items-center justify-between">
+        <span className="text-xs font-medium text-slate-400">{label}</span>
+        <span className="text-xs font-bold text-white">{value}</span>
       </div>
 
-      <div
-        className={`mt-2 h-2 overflow-hidden rounded-full ${style.track}`}
-      >
+      <div className="h-2 overflow-hidden rounded-full bg-white/[0.06]">
         <div
-          className={`h-full rounded-full ${style.bg}`}
+          className={`h-full rounded-full ${color}`}
           style={{ width }}
         />
       </div>
@@ -58,37 +70,40 @@ export default function RootCausePage() {
   const rootCause = cloudAnalysis.rootCause;
 
   return (
-    <main className="min-h-screen bg-[#f6f8fb] text-slate-900">
+    <main className="min-h-screen bg-[#070b12] text-slate-100">
       <Sidebar />
 
       <section className="lg:ml-[250px]">
         {/* Header */}
-        <header className="border-b border-slate-200 bg-white/90 px-6 py-7 backdrop-blur-xl lg:px-10">
-          <div className="flex flex-col justify-between gap-5 xl:flex-row xl:items-end">
+        <header className="border-b border-white/[0.07] bg-[#090e17]/90 px-6 py-6 backdrop-blur-xl lg:px-10">
+          <div className="flex flex-col justify-between gap-5 xl:flex-row xl:items-center">
             <div>
-              <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-teal-600">
-                <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
-                AI-powered investigation
+              <div className="mb-3 flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-red-400 shadow-[0_0_12px_rgba(248,113,113,0.8)]" />
+
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-red-400">
+                  CloudShadow / Root Cause Intelligence
+                </span>
               </div>
 
-              <h1 className="text-3xl font-bold tracking-tight text-slate-900 lg:text-4xl">
+              <h1 className="text-3xl font-bold tracking-tight text-white lg:text-4xl">
                 Root Cause Analysis
               </h1>
 
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-                Trace the cloud bill back to the application behavior that
-                triggered the increase.
+              <p className="mt-2 max-w-2xl text-sm text-slate-500">
+                Trace the billing anomaly from application behavior to
+                infrastructure impact.
               </p>
             </div>
 
-            <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.07] px-4 py-3">
+              <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.7)]" />
 
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600/70">
-                  Analysis engine
+                <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-emerald-400/70">
+                  Analysis Engine
                 </p>
-                <p className="text-sm font-semibold text-emerald-700">
+                <p className="mt-0.5 text-xs font-semibold text-emerald-300">
                   Investigation complete
                 </p>
               </div>
@@ -96,260 +111,321 @@ export default function RootCausePage() {
           </div>
         </header>
 
-        <div className="space-y-7 p-6 lg:p-10">
-          {/* Root Cause Hero */}
-          <section className="relative overflow-hidden rounded-3xl border border-red-200 bg-gradient-to-br from-red-50 via-white to-teal-50 p-6 shadow-sm lg:p-8">
-            <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-red-100 blur-3xl" />
+        <div className="space-y-6 p-5 lg:p-8">
+          {/* Command metrics */}
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <Metric
+              label="Root cause confidence"
+              value={`${rootCause.confidence}%`}
+              sub="High-confidence signal"
+              tone="red"
+            />
 
-            <div className="relative grid gap-8 xl:grid-cols-[1fr_auto]">
-              <div>
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-red-600">
+            <Metric
+              label="Primary trigger"
+              value="+62%"
+              sub="Service A traffic"
+              tone="amber"
+            />
+
+            <Metric
+              label="Downstream effect"
+              value="+48%"
+              sub="Service B requests"
+              tone="blue"
+            />
+
+            <Metric
+              label="Billing impact"
+              value="+52%"
+              sub="Network spending"
+              tone="teal"
+            />
+          </div>
+
+          {/* Main investigation panel */}
+          <section className="overflow-hidden rounded-3xl border border-red-500/20 bg-gradient-to-br from-red-500/[0.08] via-[#0b111b] to-[#07151a]">
+            <div className="grid xl:grid-cols-[1fr_300px]">
+              <div className="p-6 lg:p-8">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.16em] text-red-400">
                     Root cause detected
                   </span>
 
-                  <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-semibold text-slate-500">
-                    Automated analysis
+                  <span className="rounded-full border border-white/[0.08] bg-white/[0.035] px-3 py-1.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                    Automated investigation
                   </span>
                 </div>
 
-                <h2 className="mt-5 max-w-3xl text-2xl font-bold tracking-tight text-slate-900 lg:text-3xl">
+                <h2 className="mt-6 max-w-4xl text-2xl font-bold leading-tight tracking-tight text-white lg:text-3xl">
                   {rootCause.title}
                 </h2>
 
-                <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-600">
-                  CloudShadow detected a strong relationship between increased
-                  traffic from Service A, downstream requests, compute usage,
-                  and network spending.
+                <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-400">
+                  CloudShadow identified Service A traffic as the strongest
+                  upstream signal. The increased traffic propagated through
+                  downstream requests, compute usage and network transfer,
+                  producing the observed billing increase.
                 </p>
 
-                {/* Quick signals */}
-                <div className="mt-7 grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-xl border border-red-100 bg-white p-4 shadow-sm">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      Traffic
-                    </p>
-                    <p className="mt-1 text-2xl font-bold text-red-600">
+                {/* Signal cards */}
+                <div className="mt-7 grid gap-3 md:grid-cols-3">
+                  <div className="rounded-2xl border border-red-500/15 bg-black/20 p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-slate-500">
+                        Trigger
+                      </span>
+
+                      <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
+                    </div>
+
+                    <p className="mt-3 text-2xl font-bold text-red-400">
                       +62%
                     </p>
-                    <p className="mt-1 text-xs text-slate-500">Service A</p>
+
+                    <p className="mt-1 text-xs text-slate-500">
+                      Service A traffic
+                    </p>
                   </div>
 
-                  <div className="rounded-xl border border-amber-100 bg-white p-4 shadow-sm">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      Downstream
-                    </p>
-                    <p className="mt-1 text-2xl font-bold text-amber-600">
+                  <div className="rounded-2xl border border-amber-500/15 bg-black/20 p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-slate-500">
+                        Propagation
+                      </span>
+
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                    </div>
+
+                    <p className="mt-3 text-2xl font-bold text-amber-400">
                       +48%
                     </p>
+
                     <p className="mt-1 text-xs text-slate-500">
                       Service B requests
                     </p>
                   </div>
 
-                  <div className="rounded-xl border border-teal-100 bg-white p-4 shadow-sm">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      Network
-                    </p>
-                    <p className="mt-1 text-2xl font-bold text-teal-600">
+                  <div className="rounded-2xl border border-teal-500/15 bg-black/20 p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-slate-500">
+                        Cost impact
+                      </span>
+
+                      <span className="h-1.5 w-1.5 rounded-full bg-teal-400" />
+                    </div>
+
+                    <p className="mt-3 text-2xl font-bold text-teal-400">
                       +52%
                     </p>
+
                     <p className="mt-1 text-xs text-slate-500">
-                      Cost increase
+                      Network spending
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Confidence / Impact */}
-              <div className="flex gap-3 xl:flex-col">
-                <div className="flex min-w-[145px] flex-col justify-center rounded-2xl border border-red-100 bg-white p-5 text-center shadow-sm">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Confidence
-                  </p>
+              {/* Confidence */}
+              <div className="border-t border-white/[0.07] bg-black/20 p-6 xl:border-l xl:border-t-0 lg:p-8">
+                <p className="text-[10px] font-bold uppercase tracking-[0.17em] text-slate-500">
+                  Confidence score
+                </p>
 
-                  <p className="mt-2 text-4xl font-bold text-red-600">
-                    {rootCause.confidence}%
-                  </p>
+                <div className="mt-6 flex items-end gap-2">
+                  <span className="text-6xl font-bold tracking-tight text-red-400">
+                    {rootCause.confidence}
+                  </span>
 
-                  <div className="mx-auto mt-3 h-1.5 w-full max-w-[90px] overflow-hidden rounded-full bg-red-100">
-                    <div
-                      className="h-full rounded-full bg-red-500"
-                      style={{ width: `${rootCause.confidence}%` }}
-                    />
-                  </div>
+                  <span className="mb-2 text-2xl font-bold text-red-400">
+                    %
+                  </span>
                 </div>
 
-                <div className="flex min-w-[145px] flex-col justify-center rounded-2xl border border-red-100 bg-white p-5 text-center shadow-sm">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Impact
-                  </p>
+                <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/[0.07]">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-red-500 to-orange-400"
+                    style={{ width: `${rootCause.confidence}%` }}
+                  />
+                </div>
 
-                  <p className="mt-2 text-2xl font-bold text-red-600">
+                <div className="mt-6 flex items-center justify-between border-t border-white/[0.07] pt-5">
+                  <span className="text-xs text-slate-500">Impact level</span>
+
+                  <span className="rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-[10px] font-bold text-red-400">
                     {rootCause.impact}
-                  </p>
-
-                  <p className="mt-2 text-xs text-slate-400">
-                    Cost signal
-                  </p>
+                  </span>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* Causal Chain */}
-          <section className="cloud-card p-6 lg:p-8">
-            <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+          {/* Causal chain */}
+          <section className="rounded-3xl border border-white/[0.08] bg-[#0b111b] p-6 lg:p-8">
+            <div className="flex flex-col justify-between gap-3 lg:flex-row lg:items-end">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-teal-600">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-teal-400">
                   Causal chain
                 </p>
 
-                <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-900">
-                  How the cost increase propagated
+                <h2 className="mt-2 text-2xl font-bold tracking-tight text-white">
+                  How the anomaly propagated
                 </h2>
+
+                <p className="mt-2 text-xs text-slate-500">
+                  Application signal → service dependency → infrastructure
+                  usage → cloud bill
+                </p>
               </div>
 
-              <span className="text-xs font-medium text-slate-400">
-                Application → Infrastructure → Bill
+              <span className="rounded-lg border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-[10px] font-semibold text-slate-500">
+                4 linked signals
               </span>
             </div>
 
-            <div className="mt-8">
+            <div className="mt-8 grid gap-3 lg:grid-cols-4">
               {cloudAnalysis.chain.map((item, index) => (
                 <div key={item.step} className="relative">
-                  <div className="group flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50/70 p-5 transition hover:border-teal-200 hover:bg-white hover:shadow-sm sm:flex-row sm:items-center">
-                    {/* Step */}
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-teal-100 bg-teal-50 text-sm font-bold text-teal-700">
-                      {item.step}
-                    </div>
+                  <div
+                    className={`h-full rounded-2xl border p-5 ${
+                      index === 0
+                        ? "border-red-500/20 bg-red-500/[0.055]"
+                        : index === cloudAnalysis.chain.length - 1
+                          ? "border-teal-500/20 bg-teal-500/[0.055]"
+                          : "border-white/[0.08] bg-white/[0.025]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.06] text-[10px] font-bold text-slate-400">
+                        {item.step}
+                      </span>
 
-                    {/* Content */}
-                    <div className="flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="font-semibold text-slate-900">
-                          {item.title}
-                        </h3>
-
-                        {index === 0 && (
-                          <span className="rounded-full bg-red-50 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-red-600">
-                            Trigger
-                          </span>
-                        )}
-
-                        {index === cloudAnalysis.chain.length - 1 && (
-                          <span className="rounded-full bg-teal-50 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-teal-700">
-                            Cost impact
-                          </span>
-                        )}
-                      </div>
-
-                      <p className="mt-1 text-sm leading-6 text-slate-500">
-                        {item.description}
-                      </p>
-                    </div>
-
-                    {/* Change */}
-                    <div className="rounded-xl border border-red-100 bg-red-50 px-5 py-3 text-center">
-                      <p className="text-xl font-bold text-red-600">
+                      <span
+                        className={`text-lg font-bold ${
+                          index === 0
+                            ? "text-red-400"
+                            : index === cloudAnalysis.chain.length - 1
+                              ? "text-teal-400"
+                              : "text-amber-400"
+                        }`}
+                      >
                         {item.change}
-                      </p>
-                      <p className="mt-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-400">
-                        Change
-                      </p>
+                      </span>
                     </div>
-                  </div>
 
-                  {index < cloudAnalysis.chain.length - 1 && (
-                    <div className="relative ml-[21px] h-7 border-l border-dashed border-slate-300">
-                      <span className="absolute -bottom-1 -left-[4px] h-2 w-2 rotate-45 border-r border-b border-slate-300 bg-[#f6f8fb]" />
-                    </div>
-                  )}
+                    <h3 className="mt-5 text-sm font-semibold leading-5 text-white">
+                      {item.title}
+                    </h3>
+
+                    <p className="mt-2 text-xs leading-5 text-slate-500">
+                      {item.description}
+                    </p>
+
+                    {index < cloudAnalysis.chain.length - 1 && (
+                      <div className="absolute -right-3 top-1/2 z-10 hidden -translate-y-1/2 lg:block">
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full border border-white/[0.08] bg-[#0b111b] text-xs text-teal-400">
+                          →
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
           </section>
 
           {/* Evidence + Impact */}
-          <div className="grid gap-6 xl:grid-cols-2">
+          <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
             {/* Evidence */}
-            <section className="cloud-card p-6 lg:p-7">
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-600">
-                Evidence
-              </p>
+            <section className="rounded-3xl border border-white/[0.08] bg-[#0b111b] p-6 lg:p-7">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-400">
+                    Evidence
+                  </p>
 
-              <h2 className="mt-2 text-xl font-bold text-slate-900">
-                Signals supporting the analysis
-              </h2>
+                  <h2 className="mt-2 text-xl font-bold text-white">
+                    Signals supporting the diagnosis
+                  </h2>
+                </div>
+
+                <span className="rounded-lg border border-emerald-500/15 bg-emerald-500/[0.07] px-3 py-2 text-[9px] font-bold uppercase tracking-wider text-emerald-400">
+                  Verified
+                </span>
+              </div>
 
               <div className="mt-6 space-y-3">
                 {cloudAnalysis.evidence.map((item, index) => (
                   <div
                     key={item}
-                    className="group flex items-start gap-4 rounded-xl border border-slate-200 bg-slate-50/70 p-4 transition hover:border-emerald-200 hover:bg-white"
+                    className="flex items-center gap-4 rounded-xl border border-white/[0.07] bg-white/[0.02] p-4 transition hover:border-emerald-500/20 hover:bg-white/[0.035]"
                   >
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-bold text-emerald-600">
-                      {index + 1}
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-xs font-bold text-emerald-400">
+                      {String(index + 1).padStart(2, "0")}
                     </div>
 
-                    <div>
-                      <p className="text-sm leading-6 text-slate-700">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-slate-300">
                         {item}
                       </p>
 
-                      <p className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                        Verified signal
+                      <p className="mt-1 text-[9px] font-bold uppercase tracking-[0.14em] text-slate-600">
+                        Supporting signal
                       </p>
                     </div>
+
+                    <span className="text-emerald-400">✓</span>
                   </div>
                 ))}
               </div>
             </section>
 
             {/* Impact */}
-            <section className="cloud-card p-6 lg:p-7">
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-orange-600">
-                Estimated impact
+            <section className="rounded-3xl border border-white/[0.08] bg-[#0b111b] p-6 lg:p-7">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-orange-400">
+                Impact profile
               </p>
 
-              <h2 className="mt-2 text-xl font-bold text-slate-900">
+              <h2 className="mt-2 text-xl font-bold text-white">
                 Where the increase appeared
               </h2>
 
               <div className="mt-7 space-y-6">
                 <SignalBar
-                  label="Network"
-                  value="+52%"
-                  width="78%"
-                  tone="red"
-                />
-
-                <SignalBar
-                  label="Compute"
-                  value="+31%"
-                  width="55%"
-                  tone="orange"
-                />
-
-                <SignalBar
                   label="Service traffic"
                   value="+62%"
                   width="90%"
-                  tone="amber"
+                  color="bg-amber-400"
+                />
+
+                <SignalBar
+                  label="Network spending"
+                  value="+52%"
+                  width="78%"
+                  color="bg-red-400"
+                />
+
+                <SignalBar
+                  label="Compute usage"
+                  value="+31%"
+                  width="55%"
+                  color="bg-orange-400"
                 />
               </div>
 
-              <div className="mt-7 rounded-xl border border-amber-100 bg-amber-50/60 p-4">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  Strongest signal
-                </p>
+              <div className="mt-7 rounded-2xl border border-amber-500/15 bg-amber-500/[0.06] p-5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-slate-500">
+                      Strongest upstream signal
+                    </p>
 
-                <div className="mt-2 flex items-center justify-between">
-                  <span className="text-sm font-semibold text-slate-700">
-                    Service traffic
-                  </span>
+                    <p className="mt-2 text-sm font-semibold text-white">
+                      Service A traffic
+                    </p>
+                  </div>
 
-                  <span className="text-lg font-bold text-amber-600">
+                  <span className="text-2xl font-bold text-amber-400">
                     +62%
                   </span>
                 </div>
@@ -357,82 +433,100 @@ export default function RootCausePage() {
             </section>
           </div>
 
-          {/* Explanation */}
-          <section className="relative overflow-hidden rounded-2xl border border-teal-100 bg-gradient-to-br from-teal-50 via-white to-blue-50 p-6 shadow-sm lg:p-8">
-            <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-teal-100 blur-3xl" />
+          {/* AI explanation */}
+          <section className="rounded-3xl border border-teal-500/15 bg-gradient-to-br from-teal-500/[0.07] via-[#0b111b] to-blue-500/[0.05] p-6 lg:p-8">
+            <div className="flex flex-col justify-between gap-5 lg:flex-row">
+              <div className="max-w-4xl">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-500/10 text-sm text-teal-400">
+                    ✦
+                  </span>
 
-            <div className="relative">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="rounded-full border border-teal-200 bg-teal-50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-teal-700">
-                  CloudShadow Explanation
-                </span>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-teal-400">
+                      CloudShadow AI Explanation
+                    </p>
 
-                <span className="text-xs font-medium text-slate-400">
-                  Behavior-aware cost analysis
-                </span>
+                    <p className="mt-0.5 text-[10px] text-slate-600">
+                      Behavior-aware cost intelligence
+                    </p>
+                  </div>
+                </div>
+
+                <h2 className="mt-5 text-xl font-bold text-white lg:text-2xl">
+                  The bill increase starts with application behavior.
+                </h2>
+
+                <p className="mt-3 text-sm leading-7 text-slate-400">
+                  CloudShadow does not treat the cloud bill as an isolated
+                  infrastructure event. It follows the dependency chain from
+                  Service A traffic to downstream requests, compute activity
+                  and network transfer, connecting the observed application
+                  behavior to the final cost increase.
+                </p>
               </div>
 
-              <h2 className="mt-4 text-2xl font-bold tracking-tight text-slate-900">
-                The bill increase is connected to application behavior.
-              </h2>
-
-              <p className="mt-3 max-w-4xl text-sm leading-7 text-slate-600">
-                Instead of treating the higher cloud bill as an isolated
-                infrastructure problem, CloudShadow traces the change through
-                service dependencies. The strongest signal starts with Service
-                A traffic, followed by increased downstream requests and
-                higher compute and network usage.
-              </p>
-
-              <div className="mt-6 flex flex-wrap items-center gap-2 text-xs">
-                <span className="rounded-lg border border-slate-200 bg-white px-3 py-2 font-medium text-slate-600">
-                  Service A
-                </span>
-
-                <span className="text-slate-300">→</span>
-
-                <span className="rounded-lg border border-slate-200 bg-white px-3 py-2 font-medium text-slate-600">
-                  Service B
-                </span>
-
-                <span className="text-slate-300">→</span>
-
-                <span className="rounded-lg border border-slate-200 bg-white px-3 py-2 font-medium text-slate-600">
-                  Compute
-                </span>
-
-                <span className="text-slate-300">→</span>
-
-                <span className="rounded-lg border border-teal-100 bg-teal-50 px-3 py-2 font-semibold text-teal-700">
-                  Network Cost
-                </span>
-              </div>
-
-              <div className="mt-6 flex flex-wrap gap-3">
+              <div className="flex shrink-0 flex-col gap-3 lg:min-w-[190px]">
                 <Link
                   href="/dependencies"
-                  className="rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-slate-800"
+                  className="rounded-xl bg-teal-500 px-4 py-3 text-center text-xs font-bold text-slate-950 transition hover:bg-teal-400"
                 >
-                  View dependency graph →
+                  Open dependency graph →
                 </Link>
 
                 <Link
                   href="/recommendations"
-                  className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 transition hover:border-teal-200 hover:text-teal-700"
+                  className="rounded-xl border border-white/[0.09] bg-white/[0.03] px-4 py-3 text-center text-xs font-semibold text-slate-300 transition hover:border-teal-500/30 hover:text-teal-300"
                 >
-                  See recommendations
+                  View recommendations
                 </Link>
               </div>
+            </div>
+
+            {/* Signal flow */}
+            <div className="mt-7 flex flex-wrap items-center gap-2 border-t border-white/[0.07] pt-6">
+              {[
+                ["Service A", "+62%", "red"],
+                ["Service B", "+48%", "amber"],
+                ["Compute", "+31%", "orange"],
+                ["Network", "+52%", "teal"],
+              ].map(([name, change, tone], index) => (
+                <div key={name} className="flex items-center gap-2">
+                  <div className="rounded-xl border border-white/[0.08] bg-black/20 px-4 py-3">
+                    <p className="text-xs font-semibold text-white">{name}</p>
+
+                    <p
+                      className={`mt-1 text-[10px] font-bold ${
+                        tone === "red"
+                          ? "text-red-400"
+                          : tone === "amber"
+                            ? "text-amber-400"
+                            : tone === "orange"
+                              ? "text-orange-400"
+                              : "text-teal-400"
+                      }`}
+                    >
+                      {change}
+                    </p>
+                  </div>
+
+                  {index < 3 && (
+                    <span className="text-slate-600">→</span>
+                  )}
+                </div>
+              ))}
             </div>
           </section>
 
           {/* Footer */}
-          <div className="flex flex-col justify-between gap-2 border-t border-slate-200 pt-5 text-xs text-slate-400 sm:flex-row">
+          <footer className="flex flex-col justify-between gap-2 border-t border-white/[0.07] pt-5 text-[10px] text-slate-600 sm:flex-row">
             <span>CloudShadow • Root Cause Intelligence</span>
-            <span>Detect → Trace → Explain</span>
-          </div>
+
+            <span>Detect → Trace → Explain → Optimize</span>
+          </footer>
         </div>
       </section>
     </main>
   );
 }
+

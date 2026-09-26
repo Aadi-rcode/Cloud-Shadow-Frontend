@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -15,323 +16,365 @@ export default function RecommendationsPage() {
     0
   );
 
-  const selectedRecommendation = recommendations.find(
-    (item) => item.id === selectedId
+  const highPriority = recommendations.filter(
+    (item) => item.priority === "HIGH"
+  ).length;
+
+  const avgConfidence = Math.round(
+    recommendations.reduce((sum, item) => sum + item.confidence, 0) /
+      recommendations.length
   );
 
   return (
-    <main className="min-h-screen bg-[#f6f8fb] text-slate-900">
+    <main className="min-h-screen bg-[#070b12] text-slate-100">
       <Sidebar />
 
       <section className="min-h-screen lg:ml-[250px]">
         {/* HEADER */}
-        <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 px-6 py-5 backdrop-blur-xl lg:px-10">
+        <header className="sticky top-0 z-30 border-b border-white/[0.07] bg-[#070b12]/90 px-6 py-5 backdrop-blur-xl lg:px-10">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
             <div>
-              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-teal-600">
-                <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
-                Optimization Engine
+              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-cyan-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]" />
+                CloudShadow / Optimization Engine
               </div>
 
-              <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-                Cost Recommendations
+              <h1 className="mt-2 text-3xl font-bold tracking-tight text-white">
+                Recommendations
               </h1>
 
-              <p className="mt-1 text-sm text-slate-500">
-                AI-driven actions to reduce cloud spending safely.
+              <p className="mt-1 text-sm text-slate-400">
+                Cost optimization actions ranked by impact, confidence and risk.
               </p>
             </div>
 
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 shadow-sm">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600/70">
-                Analysis status
-              </p>
+            <div className="flex items-center gap-3">
+              <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.07] px-4 py-3">
+                <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-emerald-400/70">
+                  Engine
+                </p>
 
-              <div className="mt-1 flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.35)]" />
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.7)]" />
+                  <span className="text-sm font-semibold text-emerald-300">
+                    ACTIVE
+                  </span>
+                </div>
+              </div>
 
-                <span className="text-sm font-semibold text-emerald-700">
+              <div className="hidden rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 sm:block">
+                <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-slate-500">
+                  Analysis
+                </p>
+                <p className="mt-1 text-sm font-semibold text-white">
                   Complete
-                </span>
+                </p>
               </div>
             </div>
           </div>
         </header>
 
-        <div className="space-y-7 p-6 lg:p-10">
-          {/* HERO */}
-          <section className="relative overflow-hidden rounded-3xl border border-teal-100 bg-gradient-to-br from-teal-50 via-white to-blue-50 p-7 shadow-sm lg:p-9">
-            <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-teal-100 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-20 left-1/3 h-48 w-48 rounded-full bg-blue-100 blur-3xl" />
+        <div className="space-y-6 p-6 lg:p-10">
+          {/* TOP COMMAND STRIP */}
+          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <MetricCard
+              label="Potential monthly saving"
+              value={formatINR(totalSaving)}
+              detail="Identified opportunity"
+              accent="cyan"
+            />
 
-            <div className="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
-              <div>
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-teal-100 bg-white px-3 py-1.5 text-xs font-semibold text-teal-700 shadow-sm">
-                  <span className="text-teal-600">✦</span>
-                  CloudShadow Intelligence
+            <MetricCard
+              label="Optimization opportunities"
+              value={String(recommendations.length).padStart(2, "0")}
+              detail={`${highPriority} high priority`}
+              accent="amber"
+            />
+
+            <MetricCard
+              label="Average AI confidence"
+              value={`${avgConfidence}%`}
+              detail="Recommendation certainty"
+              accent="violet"
+            />
+
+            <MetricCard
+              label="Reliability exposure"
+              value="LOW"
+              detail="Current recommendations"
+              accent="emerald"
+            />
+          </section>
+
+          {/* SAVINGS COMMAND CENTER */}
+          <section className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
+            <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0c121c] p-6 lg:p-7">
+              <div className="pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full bg-cyan-400/[0.05] blur-3xl" />
+
+              <div className="relative">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400">
+                      Optimization forecast
+                    </p>
+
+                    <h2 className="mt-2 text-xl font-bold text-white">
+                      Where the savings come from
+                    </h2>
+                  </div>
+
+                  <div className="rounded-lg border border-cyan-400/20 bg-cyan-400/[0.06] px-3 py-2">
+                    <span className="text-xs font-bold text-cyan-300">
+                      {formatINR(totalSaving)}
+                    </span>
+                  </div>
                 </div>
 
-                <h2 className="max-w-2xl text-3xl font-bold leading-tight tracking-tight text-slate-900 lg:text-4xl">
-                  Turn cloud waste into
-                  <span className="text-teal-600"> actionable savings.</span>
-                </h2>
+                <div className="mt-7 space-y-5">
+                  {recommendations.map((item) => {
+                    const percentage = Math.round(
+                      (item.saving / totalSaving) * 100
+                    );
 
-                <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-500">
-                  CloudShadow analyzed your application behavior, service
-                  dependencies, traffic patterns and cloud spending to identify
-                  optimization opportunities.
-                </p>
+                    return (
+                      <div key={item.id}>
+                        <div className="mb-2 flex items-center justify-between gap-4">
+                          <div className="flex min-w-0 items-center gap-3">
+                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04] text-[10px] font-bold text-slate-400">
+                              {item.id}
+                            </span>
 
-                <div className="mt-5 flex flex-wrap gap-2">
-                  <span className="rounded-full border border-teal-100 bg-teal-50 px-3 py-1.5 text-xs font-semibold text-teal-700">
-                    Cost aware
-                  </span>
+                            <span className="truncate text-sm font-medium text-slate-300">
+                              {item.title}
+                            </span>
+                          </div>
 
-                  <span className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">
-                    Performance aware
-                  </span>
+                          <div className="flex shrink-0 items-center gap-2">
+                            <span className="text-xs font-bold text-white">
+                              {formatINR(item.saving)}
+                            </span>
 
-                  <span className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
-                    Reliability aware
-                  </span>
+                            <span className="text-[10px] text-slate-500">
+                              {percentage}%
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="h-2 overflow-hidden rounded-full bg-white/[0.06]">
+                          <div
+                            className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-700"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-7 border-t border-white/[0.07] pt-5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-slate-500">
+                      Estimated optimization value
+                    </span>
+
+                    <span className="text-lg font-bold text-cyan-300">
+                      {formatINR(totalSaving)} / month
+                    </span>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <div className="relative rounded-2xl border border-slate-200 bg-white p-6 shadow-md lg:min-w-[240px]">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  Potential monthly saving
-                </p>
+            {/* DECISION PROFILE */}
+            <div className="rounded-2xl border border-white/[0.08] bg-[#0c121c] p-6 lg:p-7">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-400">
+                Decision profile
+              </p>
 
-                <p className="mt-2 text-4xl font-bold tracking-tight text-slate-900">
-                  {formatINR(totalSaving)}
-                </p>
+              <h2 className="mt-2 text-xl font-bold text-white">
+                Safe optimization
+              </h2>
 
-                <div className="mt-3 flex items-center gap-2 text-xs font-medium text-emerald-600">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50">
-                    ✓
-                  </span>
-                  Without reducing reliability
-                </div>
+              <p className="mt-2 text-sm leading-6 text-slate-400">
+                CloudShadow evaluates cost, application performance and
+                reliability before recommending an action.
+              </p>
+
+              <div className="mt-6 space-y-4">
+                <DecisionRow
+                  label="Cost impact"
+                  value="HIGH"
+                  width={91}
+                  tone="cyan"
+                />
+
+                <DecisionRow
+                  label="Performance risk"
+                  value="LOW"
+                  width={22}
+                  tone="emerald"
+                />
+
+                <DecisionRow
+                  label="Reliability risk"
+                  value="LOW"
+                  width={18}
+                  tone="emerald"
+                />
+
+                <DecisionRow
+                  label="AI confidence"
+                  value={`${avgConfidence}%`}
+                  width={avgConfidence}
+                  tone="violet"
+                />
               </div>
             </div>
           </section>
 
-          {/* SUMMARY */}
-          <section className="grid gap-4 md:grid-cols-3">
-            <div className="cloud-card cloud-card-hover p-5">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Opportunities
-              </p>
-
-              <div className="mt-3 flex items-end justify-between">
-                <p className="text-3xl font-bold text-slate-900">
-                  {String(recommendations.length).padStart(2, "0")}
-                </p>
-
-                <span className="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-semibold text-teal-700">
-                  Detected
-                </span>
-              </div>
-            </div>
-
-            <div className="cloud-card cloud-card-hover p-5">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Potential Saving
-              </p>
-
-              <div className="mt-3 flex items-end justify-between gap-3">
-                <p className="text-3xl font-bold text-slate-900">
-                  {formatINR(totalSaving)}
-                </p>
-
-                <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-                  / month
-                </span>
-              </div>
-            </div>
-
-            <div className="cloud-card cloud-card-hover p-5">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Reliability Risk
-              </p>
-
-              <div className="mt-3 flex items-end justify-between">
-                <p className="text-3xl font-bold text-slate-900">Low</p>
-
-                <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-                  Protected
-                </span>
-              </div>
-            </div>
-          </section>
-
-          {/* RECOMMENDATIONS */}
+          {/* RECOMMENDATION QUEUE */}
           <section>
-            <div className="mb-5 flex flex-col justify-between gap-2 md:flex-row md:items-end">
+            <div className="mb-5 flex flex-col justify-between gap-3 md:flex-row md:items-end">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-teal-600">
-                  Recommended actions
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400">
+                  Action queue
                 </p>
 
-                <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-900">
-                  Optimization opportunities
+                <h2 className="mt-2 text-2xl font-bold text-white">
+                  Recommended actions
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-500">
-                  Ranked by estimated impact and confidence.
+                  Each action is connected to the detected cost behavior.
                 </p>
               </div>
 
-              <div className="text-xs font-medium text-slate-400">
-                Based on current cloud behavior
+              <div className="rounded-lg border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-[10px] font-medium uppercase tracking-wider text-slate-500">
+                {recommendations.length} actions detected
               </div>
             </div>
 
-            <div className="space-y-5">
-              {recommendations.map((item) => (
-                <article
-                  key={item.id}
-                  className={`cloud-card relative overflow-hidden transition-all duration-200 ${
-                    selectedId === item.id
-                      ? "border-teal-300 shadow-md"
-                      : "cloud-card-hover"
-                  }`}
-                >
-                  <div
-                    className={`absolute inset-y-0 left-0 w-1 ${
-                      item.priority === "HIGH"
-                        ? "bg-red-500"
-                        : "bg-amber-500"
-                    }`}
-                  />
+            <div className="space-y-4">
+              {recommendations.map((item) => {
+                const selected = selectedId === item.id;
 
-                  <div className="p-6 lg:p-7">
-                    <div className="grid gap-7 lg:grid-cols-[auto_1fr_auto]">
-                      {/* NUMBER */}
-                      <div className="hidden lg:block">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-400">
+                return (
+                  <article
+                    key={item.id}
+                    className={`overflow-hidden rounded-2xl border transition-all duration-200 ${
+                      selected
+                        ? "border-cyan-400/30 bg-[#0d1722] shadow-[0_0_35px_rgba(34,211,238,0.06)]"
+                        : "border-white/[0.08] bg-[#0c121c] hover:border-white/[0.14]"
+                    }`}
+                  >
+                    <div className="grid lg:grid-cols-[auto_1fr_auto]">
+                      {/* INDEX */}
+                      <div className="hidden border-r border-white/[0.07] px-5 py-6 lg:flex lg:w-[78px] lg:items-start lg:justify-center">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-xs font-bold text-slate-500">
                           {item.id}
-                        </div>
+                        </span>
                       </div>
 
-                      {/* CONTENT */}
-                      <div>
+                      {/* MAIN */}
+                      <div className="p-6 lg:p-7">
                         <div className="flex flex-wrap items-center gap-2">
                           <span
-                            className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                            className={`rounded-md border px-2 py-1 text-[9px] font-bold uppercase tracking-wider ${
                               item.priority === "HIGH"
-                                ? "border border-red-100 bg-red-50 text-red-600"
-                                : "border border-amber-100 bg-amber-50 text-amber-600"
+                                ? "border-red-400/20 bg-red-400/[0.07] text-red-300"
+                                : "border-amber-400/20 bg-amber-400/[0.07] text-amber-300"
                             }`}
                           >
-                            {item.priority} Priority
+                            {item.priority} PRIORITY
                           </span>
 
-                          <span className="rounded-full border border-teal-100 bg-teal-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-teal-700">
-                            {item.confidence}% confidence
+                          <span className="rounded-md border border-cyan-400/20 bg-cyan-400/[0.06] px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-cyan-300">
+                            {item.confidence}% CONFIDENCE
+                          </span>
+
+                          <span className="rounded-md border border-emerald-400/20 bg-emerald-400/[0.06] px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-emerald-300">
+                            {item.reliability}
                           </span>
                         </div>
 
-                        <h3 className="mt-4 text-xl font-bold tracking-tight text-slate-900">
+                        <h3 className="mt-4 text-xl font-bold tracking-tight text-white">
                           {item.title}
                         </h3>
 
-                        <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500">
+                        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
                           {item.reason}
                         </p>
 
-                        {/* METRICS */}
-                        <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                              Performance
-                            </p>
+                        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                          <SignalCard
+                            label="Performance"
+                            value={item.performance}
+                            tone="emerald"
+                          />
 
-                            <p className="mt-1 text-sm font-semibold text-emerald-600">
-                              {item.performance}
-                            </p>
-                          </div>
+                          <SignalCard
+                            label="Reliability"
+                            value={item.reliability}
+                            tone="emerald"
+                          />
 
-                          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                              Reliability
-                            </p>
-
-                            <p className="mt-1 text-sm font-semibold text-emerald-600">
-                              {item.reliability}
-                            </p>
-                          </div>
-
-                          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                              Expected impact
-                            </p>
-
-                            <p className="mt-1 text-sm font-semibold text-slate-700">
-                              {item.impact}
-                            </p>
-                          </div>
+                          <SignalCard
+                            label="Expected impact"
+                            value={item.impact}
+                            tone="cyan"
+                          />
                         </div>
 
-                        {/* CONFIDENCE */}
-                        <div className="mt-5 max-w-xl">
-                          <div className="mb-2 flex justify-between text-[11px]">
-                            <span className="font-medium text-slate-400">
+                        <div className="mt-5">
+                          <div className="mb-2 flex justify-between">
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-600">
                               AI confidence
                             </span>
 
-                            <span className="font-semibold text-slate-600">
+                            <span className="text-[10px] font-bold text-slate-400">
                               {item.confidence}%
                             </span>
                           </div>
 
-                          <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
+                          <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
                             <div
-                              className="h-full rounded-full bg-gradient-to-r from-teal-500 to-blue-500 transition-all duration-700"
-                              style={{
-                                width: `${item.confidence}%`,
-                              }}
+                              className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-violet-500"
+                              style={{ width: `${item.confidence}%` }}
                             />
                           </div>
                         </div>
                       </div>
 
-                      {/* SAVING PANEL */}
-                      <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-slate-50 p-5 lg:min-w-[205px]">
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                            Estimated saving
-                          </p>
+                      {/* SAVING */}
+                      <div className="border-t border-white/[0.07] bg-white/[0.02] p-6 lg:w-[230px] lg:border-l lg:border-t-0 lg:p-7">
+                        <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-slate-600">
+                          Estimated saving
+                        </p>
 
-                          <p className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-                            {formatINR(item.saving)}
-                          </p>
+                        <p className="mt-2 text-3xl font-bold tracking-tight text-white">
+                          {formatINR(item.saving)}
+                        </p>
 
-                          <p className="mt-1 text-xs text-slate-400">
-                            per month
-                          </p>
-                        </div>
+                        <p className="mt-1 text-xs text-slate-600">
+                          monthly potential
+                        </p>
 
                         <button
                           type="button"
                           onClick={() =>
-                            setSelectedId(
-                              selectedId === item.id ? null : item.id
-                            )
+                            setSelectedId(selected ? null : item.id)
                           }
-                          className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
-                            selectedId === item.id
-                              ? "border border-teal-200 bg-teal-50 text-teal-700"
-                              : "border border-teal-100 bg-white text-teal-700 shadow-sm hover:border-teal-200 hover:bg-teal-50"
+                          className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-3 text-xs font-bold transition ${
+                            selected
+                              ? "border-cyan-400/25 bg-cyan-400/[0.08] text-cyan-300"
+                              : "border-white/[0.08] bg-white/[0.04] text-slate-300 hover:border-cyan-400/25 hover:bg-cyan-400/[0.06] hover:text-cyan-300"
                           }`}
                         >
-                          {selectedId === item.id
-                            ? "Hide analysis"
-                            : "View analysis"}
+                          {selected ? "Hide analysis" : "Inspect action"}
 
                           <span
                             className={`transition-transform ${
-                              selectedId === item.id ? "rotate-90" : ""
+                              selected ? "rotate-90" : ""
                             }`}
                           >
                             →
@@ -339,94 +382,246 @@ export default function RecommendationsPage() {
                         </button>
                       </div>
                     </div>
-                  </div>
 
-                  {/* EXPANDED ANALYSIS */}
-                  {selectedId === item.id && (
-                    <div className="border-t border-teal-100 bg-teal-50/50 px-6 py-5 lg:px-7">
-                      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-teal-600">
-                            Recommendation analysis
-                          </p>
+                    {/* EXPANDED */}
+                    {selected && (
+                      <div className="border-t border-cyan-400/10 bg-cyan-400/[0.025] px-6 py-6 lg:px-7">
+                        <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
 
-                          <p className="mt-2 text-sm leading-6 text-slate-600">
-                            CloudShadow estimates{" "}
-                            <span className="font-bold text-slate-900">
-                              {formatINR(item.saving)}
-                            </span>{" "}
-                            in monthly savings by addressing the identified
-                            behavior while maintaining the current reliability
-                            profile.
-                          </p>
+                              <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-cyan-400">
+                                CloudShadow action analysis
+                              </p>
+                            </div>
+
+                            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-400">
+                              This recommendation targets the behavior linked
+                              to the detected cost increase. Estimated impact:
+                              <span className="font-bold text-white">
+                                {" "}
+                                {formatINR(item.saving)}
+                              </span>{" "}
+                              monthly, with{" "}
+                              <span className="font-bold text-emerald-300">
+                                {item.reliability}
+                              </span>{" "}
+                              reliability exposure.
+                            </p>
+                          </div>
+
+                          <Link
+                            href="/root-causes"
+                            className="rounded-xl border border-cyan-400/20 bg-cyan-400/[0.06] px-5 py-3 text-center text-xs font-bold text-cyan-300 transition hover:bg-cyan-400/[0.1]"
+                          >
+                            Trace root cause →
+                          </Link>
                         </div>
-
-                        <Link
-                          href="/root-causes"
-                          className="shrink-0 rounded-xl border border-teal-200 bg-white px-4 py-2.5 text-xs font-semibold text-teal-700 shadow-sm transition hover:bg-teal-50"
-                        >
-                          Trace root cause →
-                        </Link>
                       </div>
-                    </div>
-                  )}
-                </article>
-              ))}
+                    )}
+                  </article>
+                );
+              })}
             </div>
           </section>
 
-          {/* INTELLIGENCE */}
-          <section className="relative overflow-hidden rounded-3xl border border-violet-100 bg-gradient-to-br from-violet-50 via-white to-teal-50 p-7 shadow-sm lg:p-8">
-            <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-violet-100 blur-3xl" />
+          {/* INTELLIGENCE PANEL */}
+          <section className="relative overflow-hidden rounded-2xl border border-violet-400/15 bg-gradient-to-br from-violet-500/[0.08] via-[#0c121c] to-cyan-500/[0.05] p-7 lg:p-8">
+            <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-violet-500/[0.06] blur-3xl" />
 
             <div className="relative">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-violet-100 bg-violet-50 text-violet-600">
+              <div className="flex items-start gap-4">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-violet-400/20 bg-violet-400/[0.08] text-lg text-violet-300">
                   ✦
                 </div>
 
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-violet-600">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-violet-400">
                     CloudShadow Intelligence
                   </p>
 
-                  <h2 className="mt-1 text-xl font-bold text-slate-900">
-                    Optimize behavior, not blindly reduce resources.
+                  <h2 className="mt-1 text-xl font-bold text-white">
+                    Optimize behavior — not blindly reduce resources.
                   </h2>
                 </div>
               </div>
 
-              <p className="mt-5 max-w-4xl text-sm leading-7 text-slate-500">
-                These recommendations are connected to the detected root cause.
-                Instead of simply removing infrastructure, CloudShadow looks
-                at traffic patterns, service dependencies, performance and
-                reliability before suggesting an optimization.
+              <p className="mt-5 max-w-4xl text-sm leading-7 text-slate-400">
+                CloudShadow connects each recommendation to the detected root
+                cause and dependency chain. The goal is not simply to reduce
+                infrastructure, but to remove unnecessary traffic and usage
+                while protecting application performance and reliability.
               </p>
 
-              <div className="mt-6 flex flex-wrap gap-3">
-                <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-500">
-                  Cost aware
-                </span>
+              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                <InsightItem
+                  number="01"
+                  title="Detect"
+                  text="Find abnormal cost behavior."
+                />
 
-                <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-500">
-                  Performance aware
-                </span>
+                <InsightItem
+                  number="02"
+                  title="Explain"
+                  text="Connect spend to application behavior."
+                />
 
-                <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-500">
-                  Reliability aware
-                </span>
+                <InsightItem
+                  number="03"
+                  title="Optimize"
+                  text="Recommend safe corrective actions."
+                />
               </div>
             </div>
           </section>
 
           {/* FOOTER */}
-          <footer className="flex flex-col justify-between gap-2 border-t border-slate-200 pt-6 text-xs text-slate-400 sm:flex-row">
+          <footer className="flex flex-col justify-between gap-2 border-t border-white/[0.07] pt-6 text-[10px] uppercase tracking-wider text-slate-600 sm:flex-row">
             <span>CloudShadow • Intelligent Cloud Cost Analysis</span>
-
-            <span>Analyze → Explain → Optimize</span>
+            <span>Detect → Explain → Optimize</span>
           </footer>
         </div>
       </section>
     </main>
+  );
+}
+
+function MetricCard({
+  label,
+  value,
+  detail,
+  accent,
+}: {
+  label: string;
+  value: string;
+  detail: string;
+  accent: "cyan" | "amber" | "violet" | "emerald";
+}) {
+  const styles = {
+    cyan: {
+      dot: "bg-cyan-400",
+      value: "text-cyan-300",
+    },
+    amber: {
+      dot: "bg-amber-400",
+      value: "text-amber-300",
+    },
+    violet: {
+      dot: "bg-violet-400",
+      value: "text-violet-300",
+    },
+    emerald: {
+      dot: "bg-emerald-400",
+      value: "text-emerald-300",
+    },
+  };
+
+  const style = styles[accent];
+
+  return (
+    <div className="rounded-2xl border border-white/[0.08] bg-[#0c121c] p-5">
+      <div className="flex items-center gap-2">
+        <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
+        <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-slate-600">
+          {label}
+        </p>
+      </div>
+
+      <p className={`mt-4 text-2xl font-bold tracking-tight ${style.value}`}>
+        {value}
+      </p>
+
+      <p className="mt-1 text-xs text-slate-600">{detail}</p>
+    </div>
+  );
+}
+
+function DecisionRow({
+  label,
+  value,
+  width,
+  tone,
+}: {
+  label: string;
+  value: string;
+  width: number;
+  tone: "cyan" | "emerald" | "violet";
+}) {
+  const bar = {
+    cyan: "from-cyan-500 to-blue-500",
+    emerald: "from-emerald-500 to-teal-400",
+    violet: "from-violet-500 to-fuchsia-400",
+  };
+
+  const text = {
+    cyan: "text-cyan-300",
+    emerald: "text-emerald-300",
+    violet: "text-violet-300",
+  };
+
+  return (
+    <div>
+      <div className="mb-2 flex justify-between">
+        <span className="text-xs text-slate-500">{label}</span>
+        <span className={`text-[10px] font-bold ${text[tone]}`}>
+          {value}
+        </span>
+      </div>
+
+      <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+        <div
+          className={`h-full rounded-full bg-gradient-to-r ${bar[tone]}`}
+          style={{ width: `${width}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function SignalCard({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone: "cyan" | "emerald";
+}) {
+  return (
+    <div className="rounded-xl border border-white/[0.07] bg-white/[0.025] p-3">
+      <p className="text-[9px] font-bold uppercase tracking-wider text-slate-600">
+        {label}
+      </p>
+
+      <p
+        className={`mt-2 text-xs font-semibold ${
+          tone === "emerald" ? "text-emerald-300" : "text-cyan-300"
+        }`}
+      >
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function InsightItem({
+  number,
+  title,
+  text,
+}: {
+  number: string;
+  title: string;
+  text: string;
+}) {
+  return (
+    <div className="rounded-xl border border-white/[0.07] bg-black/10 p-4">
+      <div className="flex items-center gap-3">
+        <span className="text-[9px] font-bold text-violet-400">{number}</span>
+        <span className="text-sm font-bold text-white">{title}</span>
+      </div>
+
+      <p className="mt-2 text-xs leading-5 text-slate-500">{text}</p>
+    </div>
   );
 }

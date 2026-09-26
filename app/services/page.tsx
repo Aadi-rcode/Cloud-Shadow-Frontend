@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -8,29 +9,37 @@ import { cloudAnalysis, formatINR } from "../cloudData";
 const services = cloudAnalysis.services;
 
 function StatusBadge({ status }: { status: string }) {
-  const styles =
+  const config =
     status === "Critical"
-      ? "bg-red-50 text-red-700 ring-red-100"
+      ? {
+          text: "CRITICAL",
+          color: "text-red-400",
+          bg: "bg-red-500/10",
+          border: "border-red-500/20",
+          dot: "bg-red-400",
+        }
       : status === "Warning"
-        ? "bg-amber-50 text-amber-700 ring-amber-100"
-        : "bg-emerald-50 text-emerald-700 ring-emerald-100";
-
-  const dot =
-    status === "Critical"
-      ? "bg-red-500"
-      : status === "Warning"
-        ? "bg-amber-500"
-        : "bg-emerald-500";
+        ? {
+            text: "WARNING",
+            color: "text-amber-400",
+            bg: "bg-amber-500/10",
+            border: "border-amber-500/20",
+            dot: "bg-amber-400",
+          }
+        : {
+            text: "HEALTHY",
+            color: "text-emerald-400",
+            bg: "bg-emerald-500/10",
+            border: "border-emerald-500/20",
+            dot: "bg-emerald-400",
+          };
 
   return (
     <span
-      className={
-        "inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-bold ring-1 " +
-        styles
-      }
+      className={`inline-flex items-center gap-2 rounded-full border ${config.border} ${config.bg} px-2.5 py-1 text-[9px] font-bold tracking-[0.12em] ${config.color}`}
     >
-      <span className={"h-1.5 w-1.5 rounded-full " + dot} />
-      {status}
+      <span className={`h-1.5 w-1.5 rounded-full ${config.dot}`} />
+      {config.text}
     </span>
   );
 }
@@ -46,9 +55,37 @@ function ServiceIcon({ name }: { name: string }) {
           : "API";
 
   return (
-    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-xs font-bold text-teal-700 ring-1 ring-teal-100">
+    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-cyan-400/20 bg-cyan-400/10 text-xs font-black text-cyan-300">
       {label}
-    </span>
+    </div>
+  );
+}
+
+function MetricBar({
+  label,
+  value,
+  color = "bg-cyan-400",
+}: {
+  label: string;
+  value: number;
+  color?: string;
+}) {
+  return (
+    <div>
+      <div className="mb-1.5 flex items-center justify-between">
+        <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-500">
+          {label}
+        </span>
+        <span className="text-[10px] font-bold text-slate-300">{value}%</span>
+      </div>
+
+      <div className="h-1.5 overflow-hidden rounded-full bg-white/5">
+        <div
+          className={`h-full rounded-full ${color}`}
+          style={{ width: `${Math.min(value, 100)}%` }}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -87,194 +124,200 @@ export default function ServicesPage() {
     (service) => service.status === "Healthy"
   ).length;
 
+  const totalServiceCost = services.reduce(
+    (sum, service) => sum + service.current,
+    0
+  );
+
+  const highestCostService = [...services].sort(
+    (a, b) => b.current - a.current
+  )[0];
+
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
+    <main className="min-h-screen bg-[#070b12] text-slate-200">
       <Sidebar />
 
-      <section className="lg:ml-[250px]">
-        {/* HEADER */}
-        <header className="border-b border-slate-200 bg-white">
-          <div className="px-5 py-7 sm:px-7 lg:px-10 lg:py-9">
-            <div className="flex flex-col justify-between gap-6 xl:flex-row xl:items-end">
+      <section className="min-h-screen lg:ml-[250px]">
+        {/* TOP BAR */}
+        <header className="border-b border-white/[0.07] bg-[#080d15]/95">
+          <div className="px-5 py-5 sm:px-7 lg:px-10">
+            <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
               <div>
-                <div className="mb-3 flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-teal-500" />
+                <div className="mb-2 flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]" />
 
-                  <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-teal-600">
-                    Cloud intelligence
+                  <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-cyan-400">
+                    CloudShadow / Service Intelligence
                   </span>
                 </div>
 
-                <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-                  Service Intelligence
+                <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                  Service Command Center
                 </h1>
 
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-500">
-                  Monitor service behaviour, infrastructure usage and the
-                  signals driving your cloud spending.
+                <p className="mt-1 text-xs text-slate-500">
+                  Infrastructure behaviour, utilization signals and cost
+                  exposure.
                 </p>
               </div>
 
-              <div className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3">
-                <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-emerald-600">
-                  Monitoring status
-                </p>
+              <div className="flex items-center gap-3">
+                <div className="hidden rounded-lg border border-white/[0.07] bg-white/[0.025] px-4 py-2.5 sm:block">
+                  <p className="text-[8px] font-bold uppercase tracking-[0.15em] text-slate-600">
+                    Environment
+                  </p>
+                  <p className="mt-0.5 text-[11px] font-bold text-slate-300">
+                    Production
+                  </p>
+                </div>
 
-                <div className="mt-1 flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                <div className="rounded-lg border border-emerald-400/20 bg-emerald-400/5 px-4 py-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+                    <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-400">
+                      Monitoring Active
+                    </span>
+                  </div>
 
-                  <span className="text-xs font-bold text-emerald-700">
-                    {services.length} services monitored
-                  </span>
+                  <p className="mt-0.5 text-[10px] text-slate-500">
+                    {services.length} services connected
+                  </p>
                 </div>
               </div>
             </div>
           </div>
         </header>
 
-        <div className="space-y-7 p-5 sm:p-7 lg:p-10">
-          {/* SUMMARY */}
-          <section>
-            <div className="mb-4">
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
-                Environment health
+        <div className="space-y-5 p-5 sm:p-7 lg:p-10">
+          {/* COMMAND METRICS */}
+          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            <button
+              type="button"
+              onClick={() => setStatusFilter("All")}
+              className="group rounded-xl border border-white/[0.07] bg-white/[0.025] p-4 text-left transition hover:border-cyan-400/20 hover:bg-white/[0.04]"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-600">
+                  Services
+                </span>
+                <span className="text-[8px] font-bold text-cyan-400">LIVE</span>
+              </div>
+
+              <p className="mt-3 text-2xl font-bold text-white">
+                {String(services.length).padStart(2, "0")}
               </p>
 
-              <h2 className="mt-1 text-sm font-semibold text-slate-700">
-                Service status at a glance
-              </h2>
-            </div>
+              <p className="mt-1 text-[9px] text-slate-600">
+                Total monitored
+              </p>
+            </button>
 
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              <button
-                type="button"
-                onClick={() => setStatusFilter("All")}
-                className="group rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-teal-200 hover:shadow-md"
-              >
-                <div className="flex items-center justify-between">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-slate-400">
-                    Total services
-                  </p>
+            <button
+              type="button"
+              onClick={() => setStatusFilter("Critical")}
+              className="group rounded-xl border border-red-400/10 bg-red-400/[0.025] p-4 text-left transition hover:border-red-400/25"
+            >
+              <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-600">
+                Critical
+              </span>
 
-                  <span className="rounded-full bg-teal-50 px-2 py-1 text-[9px] font-bold text-teal-700">
-                    LIVE
-                  </span>
-                </div>
-
-                <p className="mt-5 text-3xl font-bold text-slate-950">
-                  {String(services.length).padStart(2, "0")}
+              <div className="mt-3 flex items-end gap-2">
+                <p className="text-2xl font-bold text-red-400">
+                  {String(criticalCount).padStart(2, "0")}
                 </p>
+                <span className="mb-1 text-[9px] font-bold text-red-400/60">
+                  ACTION
+                </span>
+              </div>
+            </button>
 
-                <p className="mt-2 text-xs text-slate-400">
-                  Click to show all services
+            <button
+              type="button"
+              onClick={() => setStatusFilter("Warning")}
+              className="group rounded-xl border border-amber-400/10 bg-amber-400/[0.025] p-4 text-left transition hover:border-amber-400/25"
+            >
+              <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-600">
+                Warning
+              </span>
+
+              <div className="mt-3 flex items-end gap-2">
+                <p className="text-2xl font-bold text-amber-400">
+                  {String(warningCount).padStart(2, "0")}
                 </p>
-              </button>
+                <span className="mb-1 text-[9px] font-bold text-amber-400/60">
+                  MONITOR
+                </span>
+              </div>
+            </button>
 
-              <button
-                type="button"
-                onClick={() => setStatusFilter("Critical")}
-                className="rounded-2xl border border-red-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-              >
-                <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-slate-400">
-                  Critical
+            <button
+              type="button"
+              onClick={() => setStatusFilter("Healthy")}
+              className="group rounded-xl border border-emerald-400/10 bg-emerald-400/[0.025] p-4 text-left transition hover:border-emerald-400/25"
+            >
+              <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-600">
+                Healthy
+              </span>
+
+              <div className="mt-3 flex items-end gap-2">
+                <p className="text-2xl font-bold text-emerald-400">
+                  {String(healthyCount).padStart(2, "0")}
                 </p>
+                <span className="mb-1 text-[9px] font-bold text-emerald-400/60">
+                  STABLE
+                </span>
+              </div>
+            </button>
 
-                <div className="mt-4 flex items-end justify-between">
-                  <p className="text-3xl font-bold text-red-600">
-                    {String(criticalCount).padStart(2, "0")}
-                  </p>
+            <div className="rounded-xl border border-cyan-400/10 bg-cyan-400/[0.025] p-4 sm:col-span-2 xl:col-span-1">
+              <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-600">
+                Service Cost
+              </span>
 
-                  <span className="rounded-full bg-red-50 px-2.5 py-1 text-[9px] font-bold text-red-600">
-                    Attention
-                  </span>
-                </div>
+              <p className="mt-3 text-2xl font-bold text-cyan-300">
+                {formatINR(totalServiceCost)}
+              </p>
 
-                <p className="mt-2 text-xs text-slate-400">
-                  Click to filter
-                </p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setStatusFilter("Warning")}
-                className="rounded-2xl border border-amber-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-              >
-                <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-slate-400">
-                  Warning
-                </p>
-
-                <div className="mt-4 flex items-end justify-between">
-                  <p className="text-3xl font-bold text-amber-600">
-                    {String(warningCount).padStart(2, "0")}
-                  </p>
-
-                  <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[9px] font-bold text-amber-700">
-                    Monitor
-                  </span>
-                </div>
-
-                <p className="mt-2 text-xs text-slate-400">
-                  Click to filter
-                </p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setStatusFilter("Healthy")}
-                className="rounded-2xl border border-emerald-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-              >
-                <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-slate-400">
-                  Healthy
-                </p>
-
-                <div className="mt-4 flex items-end justify-between">
-                  <p className="text-3xl font-bold text-emerald-600">
-                    {String(healthyCount).padStart(2, "0")}
-                  </p>
-
-                  <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[9px] font-bold text-emerald-700">
-                    Stable
-                  </span>
-                </div>
-
-                <p className="mt-2 text-xs text-slate-400">
-                  Click to filter
-                </p>
-              </button>
+              <p className="mt-1 text-[9px] text-slate-600">
+                Highest: {highestCostService.name}
+              </p>
             </div>
           </section>
 
-          {/* TOOLBAR */}
-          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          {/* FILTER / SEARCH */}
+          <section className="rounded-xl border border-white/[0.07] bg-white/[0.025]">
+            <div className="flex flex-col gap-4 p-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-teal-600">
-                  Service telemetry
-                </p>
+                <div className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+                  <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-cyan-400">
+                    Live telemetry
+                  </p>
+                </div>
 
-                <h2 className="mt-1 text-xl font-bold text-slate-950">
+                <h2 className="mt-1 text-sm font-bold text-white">
                   Infrastructure signals
                 </h2>
               </div>
 
-              <div className="flex flex-col gap-3 sm:flex-row">
+              <div className="flex flex-col gap-2 sm:flex-row">
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-600">
                     ⌕
                   </span>
 
                   <input
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
-                    placeholder="Search services..."
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-4 text-xs text-slate-700 outline-none placeholder:text-slate-400 transition focus:border-teal-300 focus:bg-white sm:w-56"
+                    placeholder="Search service..."
+                    className="w-full rounded-lg border border-white/[0.07] bg-black/20 py-2.5 pl-8 pr-4 text-[11px] text-slate-300 outline-none placeholder:text-slate-700 focus:border-cyan-400/30 sm:w-52"
                   />
                 </div>
 
                 <select
                   value={statusFilter}
                   onChange={(event) => setStatusFilter(event.target.value)}
-                  className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs font-medium text-slate-700 outline-none focus:border-teal-300"
+                  className="rounded-lg border border-white/[0.07] bg-[#0b111b] px-3 py-2.5 text-[11px] font-medium text-slate-400 outline-none focus:border-cyan-400/30"
                 >
                   <option value="All">All statuses</option>
                   <option value="Critical">Critical</option>
@@ -284,26 +327,30 @@ export default function ServicesPage() {
               </div>
             </div>
 
-            <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
-              <p className="text-[10px] text-slate-400">
-                Showing {filteredServices.length} of {services.length} services
+            <div className="flex items-center justify-between border-t border-white/[0.05] px-4 py-2.5">
+              <p className="text-[9px] text-slate-600">
+                Showing{" "}
+                <span className="font-bold text-slate-400">
+                  {filteredServices.length}
+                </span>{" "}
+                / {services.length} services
               </p>
 
               {statusFilter !== "All" && (
                 <button
                   type="button"
                   onClick={() => setStatusFilter("All")}
-                  className="text-[10px] font-bold text-teal-600 hover:text-teal-700"
+                  className="text-[9px] font-bold text-cyan-400 hover:text-cyan-300"
                 >
-                  Clear filter
+                  Reset filter
                 </button>
               )}
             </div>
           </section>
 
-          {/* SERVICES + DETAIL */}
-          <section className="grid gap-6 xl:grid-cols-3">
-            <div className="grid gap-5 xl:col-span-2">
+          {/* MAIN SERVICE GRID */}
+          <section className="grid gap-5 xl:grid-cols-[minmax(0,1.65fr)_minmax(300px,0.75fr)]">
+            <div className="grid gap-3">
               {filteredServices.map((service) => {
                 const active = selectedName === service.name;
 
@@ -315,99 +362,97 @@ export default function ServicesPage() {
                       setSelectedName(service.name);
                       setShowDetails(true);
                     }}
-                    className={
-                      "group relative overflow-hidden rounded-2xl border p-6 text-left shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md " +
-                      (active
-                        ? "border-teal-200 bg-teal-50/50"
-                        : "border-slate-200 bg-white hover:border-slate-300")
-                    }
+                    className={`group relative overflow-hidden rounded-xl border p-4 text-left transition ${
+                      active
+                        ? "border-cyan-400/25 bg-cyan-400/[0.035]"
+                        : "border-white/[0.07] bg-white/[0.025] hover:border-white/[0.13] hover:bg-white/[0.04]"
+                    }`}
                   >
-                    <div className="relative flex items-start justify-between gap-4">
-                      <div className="flex items-center gap-3">
+                    {active && (
+                      <div className="absolute left-0 top-0 h-full w-0.5 bg-cyan-400 shadow-[0_0_12px_rgba(34,211,238,0.7)]" />
+                    )}
+
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex min-w-0 items-center gap-3">
                         <ServiceIcon name={service.name} />
 
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">
-                            {service.category}
-                          </p>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h3 className="truncate text-sm font-bold text-white">
+                              {service.name}
+                            </h3>
 
-                          <h3 className="mt-1 text-lg font-bold text-slate-900">
-                            {service.name}
-                          </h3>
+                            <span className="hidden rounded bg-white/5 px-1.5 py-0.5 text-[8px] font-bold uppercase text-slate-600 sm:inline-block">
+                              {service.category}
+                            </span>
+                          </div>
+
+                          <p className="mt-1 text-[9px] text-slate-600">
+                            {service.signal}
+                          </p>
                         </div>
                       </div>
 
                       <StatusBadge status={service.status} />
                     </div>
 
-                    <div className="mt-6 rounded-xl bg-slate-50 p-4 ring-1 ring-slate-100">
-                      <div className="flex items-center justify-between">
-                        <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-slate-400">
-                          Current monthly cost
+                    <div className="mt-4 grid gap-4 md:grid-cols-[1fr_1fr_1fr_0.8fr]">
+                      <div>
+                        <p className="text-[8px] font-bold uppercase tracking-[0.13em] text-slate-600">
+                          Monthly cost
                         </p>
 
-                        <span className="text-[10px] font-semibold text-slate-400">
-                          {service.impact} impact
-                        </span>
-                      </div>
-
-                      <p className="mt-2 text-2xl font-bold tracking-tight text-slate-950">
-                        {formatINR(service.current)}
-                      </p>
-                    </div>
-
-                    <div className="mt-4 grid grid-cols-3 gap-3">
-                      <div className="rounded-xl border border-slate-100 bg-white p-3">
-                        <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
-                          Traffic
+                        <p className="mt-1.5 text-lg font-bold text-white">
+                          {formatINR(service.current)}
                         </p>
 
-                        <p className="mt-2 text-lg font-bold text-red-600">
-                          +{service.traffic}%
+                        <p className="mt-0.5 text-[9px] font-bold text-red-400">
+                          +{service.change}% vs previous
                         </p>
                       </div>
 
-                      <div className="rounded-xl border border-slate-100 bg-white p-3">
-                        <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
-                          CPU
-                        </p>
+                      <MetricBar
+                        label="Traffic"
+                        value={service.traffic}
+                        color="bg-red-400"
+                      />
 
-                        <p className="mt-2 text-lg font-bold text-slate-800">
-                          {service.cpu}%
-                        </p>
+                      <MetricBar
+                        label="CPU"
+                        value={service.cpu}
+                        color="bg-cyan-400"
+                      />
 
-                        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
-                          <div
-                            className="h-full rounded-full bg-teal-500"
-                            style={{ width: service.cpu + "%" }}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="rounded-xl border border-slate-100 bg-white p-3">
-                        <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
+                      <div>
+                        <p className="text-[8px] font-bold uppercase tracking-[0.13em] text-slate-600">
                           Latency
                         </p>
 
-                        <p className="mt-2 text-lg font-bold text-slate-800">
+                        <p className="mt-2 text-base font-bold text-slate-300">
                           {service.latency}
                         </p>
                       </div>
                     </div>
 
-                    <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-5">
-                      <div>
-                        <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
-                          Intelligence signal
-                        </p>
+                    <div className="mt-4 flex items-center justify-between border-t border-white/[0.05] pt-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[8px] font-bold uppercase tracking-[0.12em] text-slate-700">
+                          Cost impact
+                        </span>
 
-                        <p className="mt-1 text-xs font-medium text-slate-500">
-                          {service.signal}
-                        </p>
+                        <span
+                          className={`text-[9px] font-bold ${
+                            service.impact === "HIGH"
+                              ? "text-red-400"
+                              : "text-amber-400"
+                          }`}
+                        >
+                          {service.impact}
+                        </span>
                       </div>
 
-                      <span className="text-xs font-bold text-teal-600 opacity-0 transition group-hover:opacity-100">
-                        Inspect →
+                      <span className="text-[9px] font-bold text-cyan-400 opacity-0 transition group-hover:opacity-100">
+                        INSPECT →
                       </span>
                     </div>
                   </button>
@@ -415,206 +460,262 @@ export default function ServicesPage() {
               })}
 
               {filteredServices.length === 0 && (
-                <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm xl:col-span-2">
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-400 ring-1 ring-slate-200">
+                <div className="rounded-xl border border-white/[0.07] bg-white/[0.025] p-12 text-center">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.03] text-slate-600">
                     ⌕
                   </div>
 
-                  <p className="mt-4 text-sm font-bold text-slate-700">
-                    No services found
+                  <p className="mt-4 text-sm font-bold text-slate-300">
+                    No matching services
                   </p>
 
-                  <p className="mt-1 text-xs text-slate-400">
-                    Try another search or clear the status filter.
+                  <p className="mt-1 text-[10px] text-slate-600">
+                    Change your search or status filter.
                   </p>
                 </div>
               )}
             </div>
 
-            {/* DETAIL PANEL */}
-            <div className="xl:sticky xl:top-6 xl:self-start">
+            {/* INTELLIGENCE PANEL */}
+            <div className="xl:sticky xl:top-5 xl:self-start">
               {showDetails && selectedService ? (
-                <div className="rounded-2xl border border-teal-200 bg-white p-6 shadow-sm">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <ServiceIcon name={selectedService.name} />
+                <div className="overflow-hidden rounded-xl border border-cyan-400/15 bg-[#0b111a]">
+                  <div className="border-b border-white/[0.06] bg-cyan-400/[0.025] p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <ServiceIcon name={selectedService.name} />
 
-                      <div>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-teal-600">
-                          Selected service
+                        <div>
+                          <p className="text-[8px] font-bold uppercase tracking-[0.18em] text-cyan-400">
+                            Selected intelligence
+                          </p>
+
+                          <h2 className="mt-1 text-lg font-bold text-white">
+                            {selectedService.name}
+                          </h2>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setShowDetails(false)}
+                        className="rounded-md border border-white/[0.07] px-2 py-1 text-xs text-slate-600 hover:text-slate-300"
+                      >
+                        ×
+                      </button>
+                    </div>
+
+                    <div className="mt-4 flex items-center justify-between">
+                      <StatusBadge status={selectedService.status} />
+
+                      <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-600">
+                        {selectedService.category}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 p-5">
+                    {/* COST */}
+                    <div className="rounded-lg border border-white/[0.06] bg-white/[0.025] p-4">
+                      <p className="text-[8px] font-bold uppercase tracking-[0.15em] text-slate-600">
+                        Monthly cost exposure
+                      </p>
+
+                      <div className="mt-2 flex items-end justify-between">
+                        <p className="text-2xl font-bold text-white">
+                          {formatINR(selectedService.current)}
                         </p>
 
-                        <h2 className="mt-1 text-xl font-bold text-slate-950">
-                          {selectedService.name}
-                        </h2>
+                        <span className="text-[10px] font-bold text-red-400">
+                          +{selectedService.change}%
+                        </span>
+                      </div>
+
+                      <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/5">
+                        <div
+                          className="h-full rounded-full bg-red-400"
+                          style={{
+                            width: `${Math.min(selectedService.width, 100)}%`,
+                          }}
+                        />
                       </div>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => setShowDetails(false)}
-                      className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-bold text-slate-400 hover:text-slate-700"
-                    >
-                      ×
-                    </button>
-                  </div>
+                    {/* SIGNALS */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="rounded-lg border border-red-400/10 bg-red-400/[0.035] p-3">
+                        <p className="text-[8px] font-bold uppercase tracking-[0.12em] text-slate-600">
+                          Traffic
+                        </p>
+                        <p className="mt-2 text-lg font-bold text-red-400">
+                          +{selectedService.traffic}%
+                        </p>
+                      </div>
 
-                  <div className="mt-6">
-                    <StatusBadge status={selectedService.status} />
-                  </div>
+                      <div className="rounded-lg border border-cyan-400/10 bg-cyan-400/[0.035] p-3">
+                        <p className="text-[8px] font-bold uppercase tracking-[0.12em] text-slate-600">
+                          CPU
+                        </p>
+                        <p className="mt-2 text-lg font-bold text-cyan-300">
+                          {selectedService.cpu}%
+                        </p>
+                      </div>
 
-                  <div className="mt-5 rounded-xl bg-slate-50 p-4 ring-1 ring-slate-100">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      Monthly cost
-                    </p>
+                      <div className="rounded-lg border border-white/[0.06] bg-white/[0.025] p-3">
+                        <p className="text-[8px] font-bold uppercase tracking-[0.12em] text-slate-600">
+                          Latency
+                        </p>
+                        <p className="mt-2 text-lg font-bold text-slate-300">
+                          {selectedService.latency}
+                        </p>
+                      </div>
 
-                    <p className="mt-2 text-2xl font-bold text-slate-950">
-                      {formatINR(selectedService.current)}
-                    </p>
-                  </div>
+                      <div className="rounded-lg border border-white/[0.06] bg-white/[0.025] p-3">
+                        <p className="text-[8px] font-bold uppercase tracking-[0.12em] text-slate-600">
+                          Impact
+                        </p>
+                        <p className="mt-2 text-lg font-bold text-amber-400">
+                          {selectedService.impact}
+                        </p>
+                      </div>
+                    </div>
 
-                  <div className="mt-4 grid grid-cols-2 gap-3">
-                    <div className="rounded-xl bg-red-50 p-4 ring-1 ring-red-100">
-                      <p className="text-[9px] font-bold uppercase tracking-wider text-red-500">
-                        Traffic
-                      </p>
+                    {/* WHY */}
+                    <div className="rounded-lg border border-white/[0.06] bg-white/[0.025] p-4">
+                      <div className="flex items-center gap-2">
+                        <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
 
-                      <p className="mt-2 text-xl font-bold text-red-700">
-                        +{selectedService.traffic}%
+                        <p className="text-[8px] font-bold uppercase tracking-[0.16em] text-cyan-400">
+                          Intelligence signal
+                        </p>
+                      </div>
+
+                      <p className="mt-3 text-xs leading-5 text-slate-400">
+                        {selectedService.reason}
                       </p>
                     </div>
 
-                    <div className="rounded-xl bg-slate-50 p-4 ring-1 ring-slate-100">
-                      <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
-                        Latency
+                    {/* CAUSAL SIGNAL */}
+                    <div className="rounded-lg border border-red-400/10 bg-red-400/[0.035] p-4">
+                      <p className="text-[8px] font-bold uppercase tracking-[0.16em] text-red-400">
+                        Cost driver
                       </p>
 
-                      <p className="mt-2 text-xl font-bold text-slate-800">
-                        {selectedService.latency}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 rounded-xl bg-slate-50 p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">
-                      Why it matters
-                    </p>
-
-                    <p className="mt-2 text-sm leading-6 text-slate-600">
-                      {selectedService.reason}
-                    </p>
-                  </div>
-
-                  <div className="mt-4 rounded-xl bg-red-50 p-4 ring-1 ring-red-100">
-                    <div className="flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
-
-                      <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-red-600">
-                        Cost signal
+                      <p className="mt-2 text-xs font-semibold leading-5 text-slate-300">
+                        {selectedService.signal}
                       </p>
                     </div>
 
-                    <p className="mt-2 text-sm font-medium text-slate-600">
-                      {selectedService.signal}
-                    </p>
+                    {/* ACTIONS */}
+                    <div className="space-y-2">
+                      <Link
+                        href="/root-causes"
+                        className="flex items-center justify-center rounded-lg bg-cyan-400 px-4 py-3 text-[10px] font-black uppercase tracking-[0.12em] text-[#061018] transition hover:bg-cyan-300"
+                      >
+                        Investigate Root Cause →
+                      </Link>
+
+                      <Link
+                        href="/dependencies"
+                        className="flex items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400 transition hover:border-cyan-400/20 hover:text-cyan-300"
+                      >
+                        Trace Dependencies →
+                      </Link>
+                    </div>
                   </div>
-
-                  <Link
-                    href="/root-causes"
-                    className="mt-5 flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-3 text-xs font-bold text-white transition hover:bg-slate-800"
-                  >
-                    Investigate Root Cause →
-                  </Link>
-
-                  <Link
-                    href="/dependencies"
-                    className="mt-2 flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-bold text-slate-600 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700"
-                  >
-                    View Dependencies →
-                  </Link>
                 </div>
               ) : (
-                <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-                  <p className="text-sm font-bold text-slate-700">
-                    Select a service
+                <div className="rounded-xl border border-white/[0.07] bg-white/[0.025] p-8 text-center">
+                  <p className="text-sm font-bold text-slate-300">
+                    Service inspection closed
                   </p>
 
-                  <p className="mt-2 text-xs leading-5 text-slate-400">
-                    Choose any service card to inspect its cost and behaviour
-                    signals.
+                  <p className="mt-2 text-[10px] leading-5 text-slate-600">
+                    Select a service card to reopen its intelligence panel.
                   </p>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowDetails(true)}
+                    className="mt-4 rounded-lg border border-cyan-400/20 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-cyan-400"
+                  >
+                    Open Inspector
+                  </button>
                 </div>
               )}
             </div>
           </section>
 
-          {/* MAIN INSIGHT */}
-          <section className="rounded-2xl border border-red-200 bg-gradient-to-br from-red-50 via-white to-teal-50 p-6 shadow-sm lg:p-8">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="rounded-full bg-red-100 px-3 py-1 text-[9px] font-bold uppercase tracking-wider text-red-700 ring-1 ring-red-200">
-                CloudShadow Insight
-              </span>
+          {/* SYSTEM INSIGHT */}
+          <section className="relative overflow-hidden rounded-xl border border-red-400/15 bg-gradient-to-br from-red-400/[0.07] via-white/[0.025] to-cyan-400/[0.04]">
+            <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-red-400/5 blur-3xl" />
 
-              <span className="rounded-full bg-white px-3 py-1 text-[9px] font-bold text-slate-500 ring-1 ring-slate-200">
-                Confidence {cloudAnalysis.rootCause.confidence}%
-              </span>
-            </div>
+            <div className="relative p-5 sm:p-6">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full border border-red-400/20 bg-red-400/10 px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.14em] text-red-400">
+                  CloudShadow AI Insight
+                </span>
 
-            <h2 className="mt-4 text-2xl font-bold tracking-tight text-slate-950">
-              {cloudAnalysis.rootCause.title}.
-            </h2>
-
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-500">
-              Service A traffic increased by{" "}
-              <span className="font-bold text-slate-800">
-                +{services.find((service) => service.name === "Service A")?.traffic}%
-              </span>
-              , followed by a{" "}
-              <span className="font-bold text-slate-800">
-                +{services.find((service) => service.name === "Service B")?.traffic}%
-              </span>{" "}
-              increase in requests to Service B. The dependency pattern
-              suggests that application traffic is propagating downstream and
-              increasing infrastructure usage.
-            </p>
-
-            <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200">
-                <p className="text-xs font-medium text-slate-400">
-                  Traffic increase
-                </p>
-
-                <p className="mt-1 text-xl font-bold text-red-600">
-                  +{cloudAnalysis.costImpact.serviceTraffic}%
-                </p>
+                <span className="rounded-full border border-white/[0.07] bg-white/[0.03] px-2.5 py-1 text-[8px] font-bold text-slate-500">
+                  Confidence {cloudAnalysis.rootCause.confidence}%
+                </span>
               </div>
 
-              <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200">
-                <p className="text-xs font-medium text-slate-400">
-                  Downstream requests
-                </p>
+              <div className="mt-4 grid gap-5 lg:grid-cols-[1.4fr_0.8fr] lg:items-end">
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-slate-600">
+                    Detected system pattern
+                  </p>
 
-                <p className="mt-1 text-xl font-bold text-amber-600">
-                  +{services.find((service) => service.name === "Service B")?.traffic}%
-                </p>
-              </div>
+                  <h2 className="mt-2 text-xl font-bold tracking-tight text-white sm:text-2xl">
+                    {cloudAnalysis.rootCause.title}
+                  </h2>
 
-              <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200">
-                <p className="text-xs font-medium text-slate-400">
-                  Network cost
-                </p>
+                  <p className="mt-2 max-w-2xl text-xs leading-6 text-slate-500">
+                    Service A traffic is propagating downstream through Service
+                    B, increasing infrastructure utilization and network
+                    spending.
+                  </p>
+                </div>
 
-                <p className="mt-1 text-xl font-bold text-teal-600">
-                  +{cloudAnalysis.costImpact.network}%
-                </p>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="rounded-lg border border-white/[0.06] bg-black/20 p-3">
+                    <p className="text-[8px] font-bold uppercase text-slate-600">
+                      Traffic
+                    </p>
+                    <p className="mt-1 text-lg font-bold text-red-400">
+                      +{cloudAnalysis.costImpact.serviceTraffic}%
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-white/[0.06] bg-black/20 p-3">
+                    <p className="text-[8px] font-bold uppercase text-slate-600">
+                      Requests
+                    </p>
+                    <p className="mt-1 text-lg font-bold text-amber-400">
+                      +{services.find((s) => s.name === "Service B")?.traffic}%
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-white/[0.06] bg-black/20 p-3">
+                    <p className="text-[8px] font-bold uppercase text-slate-600">
+                      Network
+                    </p>
+                    <p className="mt-1 text-lg font-bold text-cyan-300">
+                      +{cloudAnalysis.costImpact.network}%
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
 
           {/* FOOTER */}
-          <footer className="flex flex-col justify-between gap-2 border-t border-slate-200 pt-5 text-[10px] text-slate-400 sm:flex-row">
+          <footer className="flex flex-col justify-between gap-2 border-t border-white/[0.06] pt-4 text-[9px] text-slate-700 sm:flex-row">
             <span>CloudShadow • Service Intelligence</span>
-            <span>Application behaviour → Infrastructure → Cost</span>
+            <span>
+              Application behaviour → Infrastructure → Cost
+            </span>
           </footer>
         </div>
       </section>
